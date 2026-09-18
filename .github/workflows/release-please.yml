@@ -20,4 +20,8 @@ jobs:
         id: release
         uses: googleapis/release-please-action@v4
         with:
+          # A fine-grained PAT is required here instead of the default
+          # GITHUB_TOKEN: tags/releases created with GITHUB_TOKEN do not
+          # trigger other workflows (e.g. release.yml on tag push).
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           release-type: node
