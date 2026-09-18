@@ -18,8 +18,8 @@ const features = [
         <span class="brand-name">Calendar</span>
       </div>
       <el-space :size="24" spacer-class="nav-links">
-        <el-link :underline="false">Записаться</el-link>
-        <el-link :underline="false">Предстоящие события</el-link>
+        <el-link underline="never">Записаться</el-link>
+        <el-link underline="never">Предстоящие события</el-link>
       </el-space>
     </el-header>
 
