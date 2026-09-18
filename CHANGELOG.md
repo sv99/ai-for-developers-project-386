@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.2](https://github.com/sv99/ai-for-developers-project-386/compare/v1.0.1...v1.0.2) (2026-09-18)
+
+
+### Bug Fixes
+
+* замена favicon.ico ([0409bd6](https://github.com/sv99/ai-for-developers-project-386/commit/0409bd6135f331ec213aea16b205f04b29386afc))
+* исправление [el-link] [API] The underline option (boolean) is about to be deprecated in version 3.0.0 ([0409bd6](https://github.com/sv99/ai-for-developers-project-386/commit/0409bd6135f331ec213aea16b205f04b29386afc))
+* Настройка skills ([236dc1e](https://github.com/sv99/ai-for-developers-project-386/commit/236dc1e8ef0996fc53fe6864c3b0e4a7e1a94e11))
+
 ## [1.0.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.0.0...v1.0.1) (2026-09-18)
 
 
