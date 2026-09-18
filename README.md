@@ -1,25 +1,33 @@
 # Календарь звонков
 
-
 [![hexlet-check](https://github.com/sv99/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/sv99/ai-for-developers-project-386/actions)
 
 Разработайте совместно с ИИ сервис для бронирования календаря
 
-Учебный проект Хекслета: https://ru.hexlet.io/programs/ai-for-developers
-Как это должно работать: https://files.hexlet.app/a/2ipc5m
+Учебный проект Хекслета: <https://ru.hexlet.io/programs/ai-for-developers>
+Как это должно работать: <https://files.hexlet.app/a/2ipc5m>
 
 ## Стек
 
-- Разное
+- TypeScript
+- Vue
+- Element-Plus
+- Vite
+
+Большую часть настройки сделал opencode модель GLM 5.3.
+Отдельно настраивал release-please (раньше никогда не сталкивался), тоже под руководством Copilot в их новом варианте интерфейса Agents.
 
 ## Установка
-
-<!-- Опишите установку: клонирование, зависимости, переменные окружения -->
 
 ```bash
 git clone https://github.com/sv99/ai-for-developers-project-386.git
 cd ai-for-developers-project-386
 ```
+
+Для работы `release-please` нужно:
+
+1. добавить PAT ключ для репозитория с правами: Contents: Read and write, Pull requests: Read and write.
+2. Добавить его в репозиторий как secret Settings → Secrets and variables → Actions → New repository secret с именем RELEASE_PLEASE_TOKEN.
 
 ## Использование
 
