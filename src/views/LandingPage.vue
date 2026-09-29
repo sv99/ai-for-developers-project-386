@@ -44,11 +44,14 @@ const features = [
 
 <style scoped>
 .landing-main {
+  padding: 0;
+  height: calc(100vh - 64px);
+  overflow: hidden;
   background: linear-gradient(to right, #e8f2fb 0%, #f7f7f8 55%, #fdf0e8 100%);
 }
 
 .hero {
-  min-height: calc(100vh - 64px);
+  height: 100%;
   padding: 40px;
 }
 
@@ -122,7 +125,14 @@ const features = [
 }
 
 @media (max-width: 991px) {
+  .landing-main {
+    height: auto;
+    min-height: calc(100vh - 64px);
+  }
+
   .hero {
+    height: auto;
+    min-height: calc(100vh - 64px);
     padding: 24px;
   }
 
