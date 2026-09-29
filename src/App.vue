@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import LandingPage from './components/LandingPage.vue'
+import AppHeader from './components/AppHeader.vue'
 </script>
 
 <template>
-  <LandingPage />
+  <AppHeader />
+  <RouterView />
 </template>
