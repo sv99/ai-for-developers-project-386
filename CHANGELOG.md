@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.0.2...v1.1.0) (2026-09-29)
+
+
+### Features
+
+* навигация с главной страницы на страницу записи ([ca60440](https://github.com/sv99/ai-for-developers-project-386/commit/ca60440cb4958b802a03308e75ef21c52349fd04))
+
 ## [1.0.2](https://github.com/sv99/ai-for-developers-project-386/compare/v1.0.1...v1.0.2) (2026-09-18)
 
 
