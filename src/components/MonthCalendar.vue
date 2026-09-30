@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -57,20 +57,6 @@ const split = (iso: string) => {
 const start = split(props.modelValue || today.value)
 const viewYear = ref(start.year)
 const viewMonth = ref(start.month)
-
-watch(
-  () => props.modelValue,
-  (value) => {
-    if (!value) {
-      return
-    }
-    const picked = split(value)
-    if (picked.year !== viewYear.value || picked.month !== viewMonth.value) {
-      viewYear.value = picked.year
-      viewMonth.value = picked.month
-    }
-  },
-)
 
 const monthLabel = computed(() => `${MONTHS[viewMonth.value]} ${viewYear.value} г.`)
 
@@ -131,13 +117,10 @@ const shiftMonth = (delta: number) => {
 }
 
 const pick = (cell: DayCell) => {
+  // Месяц переключают только кнопки листания: клик по дню соседнего месяца выбирает день,
+  // не меняя вид календаря.
   if (!cell.available) {
     return
-  }
-  if (!cell.inMonth) {
-    const picked = split(cell.iso)
-    viewYear.value = picked.year
-    viewMonth.value = picked.month
   }
   emit('update:modelValue', cell.iso)
 }
