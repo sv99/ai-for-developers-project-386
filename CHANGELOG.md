@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.1.1...v1.2.0) (2026-09-30)
+
+
+### Features
+
+* выбор типа события и запись на звонок ([#25](https://github.com/sv99/ai-for-developers-project-386/issues/25)) ([36f712b](https://github.com/sv99/ai-for-developers-project-386/commit/36f712b1ad3a05a869ccbea2729d308ca0409fc2))
+* страница выбора типа, имя владельца и настройки на /admin ([#26](https://github.com/sv99/ai-for-developers-project-386/issues/26)) ([67f7b5a](https://github.com/sv99/ai-for-developers-project-386/commit/67f7b5aac97196dce3a9eb95649eebaf20f2a133))
+* управление типами событий в предстоящих событиях ([#22](https://github.com/sv99/ai-for-developers-project-386/issues/22)) ([bc8f96f](https://github.com/sv99/ai-for-developers-project-386/commit/bc8f96fe63c85ff7a36bd72379fe9d5ba12a68f5)), closes [#15](https://github.com/sv99/ai-for-developers-project-386/issues/15) [#17](https://github.com/sv99/ai-for-developers-project-386/issues/17)
+
+
+### Bug Fixes
+
+* контрастнее рамки белых блоков ([#28](https://github.com/sv99/ai-for-developers-project-386/issues/28)) ([d5e171b](https://github.com/sv99/ai-for-developers-project-386/commit/d5e171ba429f9152dc0024534aa302d64580c555))
+
 ## [1.1.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.1.0...v1.1.1) (2026-09-30)
 
 
