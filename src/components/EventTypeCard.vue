@@ -8,7 +8,7 @@ defineProps<{ eventType: EventType }>()
   <div class="type-card">
     <div class="type-head">
       <span class="type-name">{{ eventType.name }}</span>
-      <span class="type-duration">{{ eventType.durationMinutes }} мин</span>
+      <el-tag class="type-duration" round type="info">{{ eventType.durationMinutes }} мин</el-tag>
     </div>
     <p class="type-description">{{ eventType.description }}</p>
   </div>
@@ -38,14 +38,9 @@ defineProps<{ eventType: EventType }>()
 
 .type-duration {
   flex: none;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background-color: var(--el-fill-color);
-  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--el-text-color-regular);
 }
 
 .type-description {
