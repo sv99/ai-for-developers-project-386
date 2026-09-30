@@ -3,7 +3,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 
-import { countFreeSlots, listDayStarts } from '@/api/availability'
+import { bookingWindowEnd, countFreeSlots, listDayStarts } from '@/api/availability'
 import type { DaySlot } from '@/api/availability'
 import { createBooking } from '@/api/bookings'
 import { listEventTypes } from '@/api/eventTypes'
@@ -45,6 +45,8 @@ const daySlots = ref<DaySlot[]>([])
 const freeSlots = ref(0)
 const submitError = ref('')
 const confirmation = ref<Booking | null>(null)
+// Дальше конца окна регистрации записываться некуда — календарь не листается.
+const windowEnd = bookingWindowEnd()
 
 const refreshSlots = () => {
   daySlots.value = selectedDate.value ? listDayStarts(selectedDate.value, duration.value) : []
@@ -210,7 +212,7 @@ const bookAgain = () => {
 
         <template v-if="step === 'slot'">
           <section class="card">
-            <MonthCalendar v-model="selectedDate" :counts="countFreeSlots" />
+            <MonthCalendar v-model="selectedDate" :counts="countFreeSlots" :window-end="windowEnd" />
           </section>
 
           <section class="card slots">
