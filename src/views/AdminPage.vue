@@ -147,6 +147,8 @@ const onAddType = async () => {
 }
 
 .card {
+  --el-card-border-color: var(--el-border-color);
+
   max-width: 640px;
   margin-bottom: 24px;
   border-radius: 12px;

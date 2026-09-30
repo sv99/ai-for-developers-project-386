@@ -71,7 +71,7 @@ const choose = (eventType: EventType) => {
 .host-card {
   margin-bottom: 24px;
   padding: 28px 32px;
-  border: 1px solid var(--el-border-color-lighter);
+  border: 1px solid var(--el-border-color);
   border-radius: 16px;
   background-color: var(--el-bg-color);
 }
@@ -126,7 +126,7 @@ const choose = (eventType: EventType) => {
 .page-empty {
   margin: 0;
   padding: 24px 28px;
-  border: 1px solid var(--el-border-color-lighter);
+  border: 1px solid var(--el-border-color);
   border-radius: 12px;
   background-color: var(--el-bg-color);
   color: var(--el-text-color-secondary);

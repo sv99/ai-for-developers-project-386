@@ -18,7 +18,7 @@ defineProps<{ eventType: EventType }>()
 .type-card {
   height: 100%;
   padding: 20px 24px;
-  border: 1px solid var(--el-border-color-lighter);
+  border: 1px solid var(--el-border-color);
   border-radius: 12px;
   background-color: var(--el-bg-color);
 }

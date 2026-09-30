@@ -86,7 +86,7 @@ const features = [
 
 .features-card {
   max-width: 520px;
-  border: 1px solid var(--el-border-color-lighter);
+  border: 1px solid var(--el-border-color);
   border-radius: 12px;
 }
 
