@@ -168,7 +168,6 @@ const pick = (cell: DayCell) => {
           'day--outside': !cell.inMonth,
           'day--muted': !cell.available,
           'day--has-items': highlightFull && cell.free > 0,
-          'day--today-inside': cell.iso === today && cell.inMonth,
           'day--selected': cell.iso === modelValue,
           'day--today': cell.iso === today,
         }"
@@ -306,17 +305,6 @@ const pick = (cell: DayCell) => {
 .day--selected .day-number,
 .day--today .day-number {
   font-weight: 700;
-}
-
-/* Насыщенный оранжевый только для сегодняшнего дня внутри месяца: дни из соседних месяцев
-   стоят первыми в сетке и по специфичности не перебили бы `.day--has-items`. */
-.day--today-inside {
-  background-color: var(--el-color-primary);
-}
-
-.day--today-inside .day-number,
-.day--today-inside .day-count {
-  color: var(--el-color-white);
 }
 
 .day--selected .day-count {
