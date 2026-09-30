@@ -113,28 +113,21 @@ const cancel = () => {
           <div class="card-head">
             <h2 class="card-title">Информация о записи</h2>
 
-            <el-tooltip content="Удалить запись" :show-after="200">
-              <el-popconfirm
-                title="Отменить эту Запись?"
-                confirm-button-text="Да, отменить"
-                cancel-button-text="Нет"
-                confirm-button-type="danger"
-                width="240"
-                @confirm="cancel"
-              >
-                <template #reference>
-                  <el-button
-                    class="remove-button"
-                    text
-                    circle
-                    aria-label="Удалить запись"
-                    :disabled="!selectedBooking"
-                  >
-                    <el-icon><Delete /></el-icon>
-                  </el-button>
-                </template>
-              </el-popconfirm>
-            </el-tooltip>
+            <el-popconfirm
+              v-if="selectedBooking"
+              title="Отменить эту Запись?"
+              confirm-button-text="Да, отменить"
+              cancel-button-text="Нет"
+              confirm-button-type="danger"
+              width="240"
+              @confirm="cancel"
+            >
+              <template #reference>
+                <el-button class="remove-button" text circle aria-label="Удалить запись">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </template>
+            </el-popconfirm>
           </div>
 
           <p v-if="!selectedBooking" class="empty">Выберите Запись в списке.</p>
