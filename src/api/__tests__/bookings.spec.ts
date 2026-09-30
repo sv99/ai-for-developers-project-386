@@ -218,4 +218,30 @@ describe('upcoming bookings API', () => {
 
     expect(api.listUpcomingBookings()).toEqual([])
   })
+
+  it('cancels a booking and keeps it in the storage', async () => {
+    const api = await importApi()
+    const type = createType(api, 30)
+    const booking = book(api, type, '2026-03-29', '10:00')
+
+    const cancelled = api.cancelBooking(booking.id)
+
+    expect(cancelled.status).toBe('cancelled')
+    expect(cancelled.date).toBe('2026-03-29')
+    expect(cancelled.contact).toEqual(contact)
+    expect(api.listUpcomingBookings()).toEqual([])
+    expect(api.listBookings()).toHaveLength(1)
+  })
+
+  it('rejects cancelling an unknown or already cancelled booking', async () => {
+    const api = await importApi()
+    const type = createType(api, 30)
+    const booking = book(api, type, '2026-03-29', '10:00')
+
+    expect(() => api.cancelBooking('missing')).toThrow()
+
+    api.cancelBooking(booking.id)
+
+    expect(() => api.cancelBooking(booking.id)).toThrow()
+  })
 })

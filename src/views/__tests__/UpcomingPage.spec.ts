@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 
-import { listUpcomingBookings } from '@/api/bookings'
+import { ElPopconfirm } from 'element-plus'
+
+import { cancelBooking, listUpcomingBookings } from '@/api/bookings'
 import { listEventTypes } from '@/api/eventTypes'
 import type { Booking } from '@/api/types'
 
@@ -15,10 +17,12 @@ vi.mock('@/api/eventTypes', () => ({
 }))
 
 vi.mock('@/api/bookings', () => ({
+  cancelBooking: vi.fn(),
   listUpcomingBookings: vi.fn(),
 }))
 
 const mockedListUpcoming = vi.mocked(listUpcomingBookings)
+const mockedCancel = vi.mocked(cancelBooking)
 const mockedListTypes = vi.mocked(listEventTypes)
 
 /** Сегодня — понедельник 28 сентября 2026; Записи стоят на среду и четверг. */
@@ -50,6 +54,27 @@ const dayCell = (wrapper: Wrapper, day: number) =>
   wrapper
     .findAll('.day:not(.day--outside)')
     .find((cell) => cell.find('.day-number').text() === String(day))
+
+const removeButton = (wrapper: Wrapper) => wrapper.find('.remove-button')
+
+const pickBooking = async (wrapper: Wrapper) => {
+  await wrapper.find('.booking').trigger('click')
+}
+
+const popconfirm = (wrapper: Wrapper) => wrapper.findComponent(ElPopconfirm)
+
+/**
+ * В jsdom у настоящего ElPopconfirm всплывает не попап, а только его содержимое: `ElTooltip`
+ * наружу отдаёт не тот слот, который открывает `ElPopperTrigger`, и всплывает `content` вместо
+ * `default`. Кнопки «Да, отменить» в DOM поэтому нет, и клик по корзине проверить нельзя.
+ * Зато можно вызвать тот же обработчик, что висит на кнопке (`confirm` из слота `actions`) —
+ * так тест проверяет поведение страницы, а не устройство Element Plus.
+ */
+const confirm = async (wrapper: Wrapper) => {
+  await popconfirm(wrapper).vm.$emit('confirm')
+  await flushPromises()
+  await wrapper.vm.$nextTick()
+}
 
 const detail = (wrapper: Wrapper, label: string) => {
   const row = wrapper.findAll('.details-row').find((item) => item.find('dt').text() === label)
@@ -141,5 +166,68 @@ describe('UpcomingPage', () => {
     expect(dayCell(wrapper, 29)?.find('.day-count').text()).toBe('0 зап.')
     expect(dayCell(wrapper, 29)?.classes()).toContain('day--muted')
     expect(dayCell(wrapper, 29)?.classes()).not.toContain('day--has-items')
+  })
+
+  it('keeps the cancel action disabled until a booking is picked', async () => {
+    mockedListUpcoming.mockReturnValue([booking()])
+    const wrapper = mountPage()
+
+    expect(removeButton(wrapper)?.attributes('disabled')).toBeDefined()
+    expect(removeButton(wrapper)?.attributes('aria-label')).toBe('Удалить запись')
+
+    await pickDate(wrapper, WEDNESDAY)
+    await wrapper.find('.booking').trigger('click')
+
+    expect(removeButton(wrapper)?.attributes('disabled')).toBeUndefined()
+  })
+
+  it('asks for confirmation before cancelling', async () => {
+    mockedListUpcoming.mockReturnValue([booking()])
+    const wrapper = mountPage()
+
+    await pickDate(wrapper, WEDNESDAY)
+    await pickBooking(wrapper)
+
+    // Попап только спрашивает: клик по корзине открывает его, но ничего не отменяет.
+    expect(popconfirm(wrapper).props('title')).toBe('Отменить эту Запись?')
+    expect(popconfirm(wrapper).props('confirmButtonText')).toBe('Да, отменить')
+    expect(mockedCancel).not.toHaveBeenCalled()
+
+    await confirm(wrapper)
+
+    expect(mockedCancel).toHaveBeenCalledWith('bk-1')
+  })
+
+  it('drops the cancelled booking from the journal', async () => {
+    mockedListUpcoming.mockReturnValue([booking()])
+    const wrapper = mountPage()
+
+    await pickDate(wrapper, WEDNESDAY)
+    await pickBooking(wrapper)
+    await confirm(wrapper)
+
+    mockedListUpcoming.mockReturnValue([])
+    await confirm(wrapper)
+
+    expect(wrapper.findAll('.booking')).toHaveLength(0)
+    expect(wrapper.text()).toContain('Выберите Запись в списке.')
+    expect(dayCell(wrapper, 30)?.find('.day-count').text()).toBe('0 зап.')
+  })
+
+  it('shows the reason when the booking cannot be cancelled', async () => {
+    mockedListUpcoming.mockReturnValue([booking()])
+    mockedCancel.mockImplementation(() => {
+      throw new Error('Запись уже отменена')
+    })
+    const wrapper = mountPage()
+
+    await pickDate(wrapper, WEDNESDAY)
+    await pickBooking(wrapper)
+
+    await confirm(wrapper)
+
+    expect(wrapper.find('.form-error').text()).toBe('Запись уже отменена')
+    expect(wrapper.find('.booking').exists()).toBe(true)
+    expect(wrapper.find('.details-row').exists()).toBe(true)
   })
 })
