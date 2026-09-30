@@ -180,4 +180,20 @@ describe('MonthCalendar', () => {
 
     expect(dayInMonth(wrapper, 28)?.find('.day-count').text()).toBe('18 зап.')
   })
+
+  it('highlights the days that have items', () => {
+    const wrapper = mountCalendar({
+      highlightFull: true,
+      counts: (date: string) => (date === '2026-03-30' ? 2 : 0),
+    })
+
+    expect(dayInMonth(wrapper, 30)?.classes()).toContain('day--has-items')
+    expect(dayInMonth(wrapper, 29)?.classes()).not.toContain('day--has-items')
+  })
+
+  it('does not highlight the days while the highlight is off', () => {
+    const wrapper = mountCalendar()
+
+    expect(wrapper.findAll('.day--has-items')).toHaveLength(0)
+  })
 })

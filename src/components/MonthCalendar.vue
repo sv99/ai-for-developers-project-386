@@ -10,12 +10,14 @@ const props = withDefaults(
     counts: (date: string) => number
     /** Единица в подписи дня: «N св.» на странице Записи, «N зап.» в журнале. */
     countSuffix?: string
+    /** Подсвечивать фоном дни, у которых есть единицы: в журнале так видны дни с Записями. */
+    highlightFull?: boolean
     /** Сегодняшняя дата; нужна только тестам. */
     today?: string
     /** Последний день окна регистрации; пустая строка — без ограничения. */
     windowEnd?: string
   }>(),
-  { countSuffix: 'св.', today: '', windowEnd: '' },
+  { countSuffix: 'св.', highlightFull: false, today: '', windowEnd: '' },
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -182,6 +184,8 @@ const pick = (cell: DayCell) => {
         :class="{
           'day--outside': !cell.inMonth,
           'day--muted': !cell.available,
+          'day--has-items': highlightFull && cell.free > 0,
+          'day--today-inside': cell.iso === today && cell.inMonth,
           'day--selected': cell.iso === modelValue,
           'day--today': cell.iso === today,
         }"
@@ -277,6 +281,14 @@ const pick = (cell: DayCell) => {
   cursor: pointer;
 }
 
+.day--has-items {
+  background-color: var(--el-color-primary-light-9);
+}
+
+.day--has-items .day-count {
+  color: var(--el-color-primary-dark-2);
+}
+
 .day:hover:not(:disabled) {
   border-color: var(--el-color-primary);
 }
@@ -311,5 +323,20 @@ const pick = (cell: DayCell) => {
 .day--selected .day-number,
 .day--today .day-number {
   font-weight: 700;
+}
+
+/* Насыщенный оранжевый только для сегодняшнего дня внутри месяца: дни из соседних месяцев
+   стоят первыми в сетке и по специфичности не перебили бы `.day--has-items`. */
+.day--today-inside {
+  background-color: var(--el-color-primary);
+}
+
+.day--today-inside .day-number,
+.day--today-inside .day-count {
+  color: var(--el-color-white);
+}
+
+.day--selected .day-count {
+  color: var(--el-color-primary);
 }
 </style>
