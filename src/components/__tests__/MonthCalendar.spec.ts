@@ -175,6 +175,35 @@ describe('MonthCalendar', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([['2026-09-30']])
   })
 
+  it('picks a day of the neighbouring month without switching the month', async () => {
+    // Сегодня 30 сентября, окно открыто до 14 октября: 1 октября доступен как день соседнего месяца.
+    const wrapper = mountCalendar({ today: '2026-09-30' })
+
+    const oct1 = wrapper
+      .findAll('.day')
+      .find(
+        (cell) =>
+          cell.classes().includes('day--outside') && cell.find('.day-number').text() === '1',
+      )
+    expect(oct1?.classes()).not.toContain('day--muted')
+
+    await oct1?.trigger('click')
+    // Родитель сообщает выбранную дату обратно — компонент не должен из-за этого листать месяц.
+    await wrapper.setProps({ modelValue: '2026-10-01' })
+
+    expect(wrapper.emitted('update:modelValue')).toEqual([['2026-10-01']])
+    expect(wrapper.find('.calendar-month').text()).toBe('сентябрь 2026 г.')
+  })
+
+  it('does not switch the month when the selection comes from outside', async () => {
+    const wrapper = mountCalendar({ modelValue: '2026-03-30' })
+
+    await wrapper.setProps({ modelValue: '2026-05-04' })
+
+    expect(wrapper.find('.calendar-month').text()).toBe('март 2026 г.')
+    expect(dayInMonth(wrapper, 30)?.classes()).not.toContain('day--selected')
+  })
+
   it('labels the day count with the given suffix', () => {
     const wrapper = mountCalendar({ countSuffix: 'зап.' })
 
