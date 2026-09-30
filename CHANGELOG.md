@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.4.0...v1.5.0) (2026-09-30)
+
+
+### Features
+
+* отмена Записи из журнала Предстоящих событий ([#43](https://github.com/sv99/ai-for-developers-project-386/issues/43)) ([851436b](https://github.com/sv99/ai-for-developers-project-386/commit/851436bffc56b482820b55428b6a805acf2f17de))
+
+
+### Bug Fixes
+
+* листать месяцы только по кнопкам, не по клику на день ([#46](https://github.com/sv99/ai-for-developers-project-386/issues/46)) ([ed0438f](https://github.com/sv99/ai-for-developers-project-386/commit/ed0438fe975bcdaa6d604f31c9862b1cc020cc8c))
+* не заливать сегодняшний день цветом, только жирный текст ([#45](https://github.com/sv99/ai-for-developers-project-386/issues/45)) ([00b6f5e](https://github.com/sv99/ai-for-developers-project-386/commit/00b6f5ed55306ed73f344b9b95b73db122bdabb4))
+* скрывать иконку удаления, пока Запись не выбрана ([#47](https://github.com/sv99/ai-for-developers-project-386/issues/47)) ([0a4aadb](https://github.com/sv99/ai-for-developers-project-386/commit/0a4aadbeb966dd526a4ce1b2583eadeccb0b97b0))
+
 ## [1.4.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.3.0...v1.4.0) (2026-09-30)
 
 
