@@ -258,7 +258,7 @@ const bookAgain = () => {
         <section v-else-if="step === 'contact'" class="card">
           <div class="confirm-head">
             <h2 class="card-title">Подтверждение записи</h2>
-            <el-button class="change-button" @click="backToSlots">Изменить</el-button>
+            <el-button class="back-button" @click="backToSlots">Назад</el-button>
           </div>
 
           <el-form
@@ -498,7 +498,7 @@ const bookAgain = () => {
   margin: 0;
 }
 
-.change-button {
+.back-button {
   font-weight: 700;
 }
 

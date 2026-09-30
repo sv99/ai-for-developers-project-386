@@ -205,7 +205,10 @@ describe('BookingPage', () => {
     expect(wrapper.find('input[placeholder="Телефон"]').exists()).toBe(true)
     expect(infoValues(wrapper)).toContain('10:00 - 10:30')
 
-    await wrapper.find('.change-button').trigger('click')
+    const backButton = wrapper.find('.back-button')
+    expect(backButton.text()).toBe('Назад')
+
+    await backButton.trigger('click')
 
     expect(wrapper.text()).toContain('Статус слотов')
   })
