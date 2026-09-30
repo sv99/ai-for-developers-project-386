@@ -128,4 +128,23 @@ describe('availability API', () => {
 
     expect(api.countFreeSlots(TOMORROW)).toBe(18)
   })
+
+  it('lets the visitor book the time of a cancelled booking again', async () => {
+    const api = await importApi()
+    const type = createType(api, 30)
+    const booking = api.createBooking({
+      eventTypeId: type.id,
+      date: TOMORROW,
+      startTime: '10:00',
+      contact,
+    })
+
+    api.cancelBooking(booking.id)
+
+    expect(api.countFreeSlots(TOMORROW)).toBe(18)
+
+    expect(() =>
+      api.createBooking({ eventTypeId: type.id, date: TOMORROW, startTime: '10:00', contact }),
+    ).not.toThrow()
+  })
 })

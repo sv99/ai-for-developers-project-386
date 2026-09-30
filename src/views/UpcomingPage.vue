@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { Delete } from '@element-plus/icons-vue'
 import { computed, ref } from 'vue'
 
-import { listUpcomingBookings } from '@/api/bookings'
+import { cancelBooking, listUpcomingBookings } from '@/api/bookings'
 import { listEventTypes } from '@/api/eventTypes'
 import { bookingRange, SLOT_MINUTES, toTime } from '@/api/slots'
 import type { Booking } from '@/api/types'
@@ -20,6 +21,7 @@ const timeRange = (booking: Booking) => {
 
 const selectedDate = ref('')
 const selectedId = ref('')
+const cancelError = ref('')
 
 const countByDate = computed(() => {
   const counts = new Map<string, number>()
@@ -42,10 +44,24 @@ const selectedBooking = computed(
 const pickDate = (date: string) => {
   selectedDate.value = date
   selectedId.value = ''
+  cancelError.value = ''
 }
 
 const pickBooking = (booking: Booking) => {
   selectedId.value = booking.id
+  cancelError.value = ''
+}
+
+const cancel = () => {
+  cancelError.value = ''
+  try {
+    cancelBooking(selectedId.value)
+  } catch (error) {
+    cancelError.value = error instanceof Error ? error.message : 'Не удалось отменить Запись'
+    return
+  }
+  bookings.value = listUpcomingBookings()
+  selectedId.value = ''
 }
 </script>
 
@@ -94,31 +110,59 @@ const pickBooking = (booking: Booking) => {
         </section>
 
         <section class="card">
-          <h2 class="card-title">Информация о записи</h2>
+          <div class="card-head">
+            <h2 class="card-title">Информация о записи</h2>
+
+            <el-tooltip content="Удалить запись" :show-after="200">
+              <el-popconfirm
+                title="Отменить эту Запись?"
+                confirm-button-text="Да, отменить"
+                cancel-button-text="Нет"
+                confirm-button-type="danger"
+                width="240"
+                @confirm="cancel"
+              >
+                <template #reference>
+                  <el-button
+                    class="remove-button"
+                    text
+                    circle
+                    aria-label="Удалить запись"
+                    :disabled="!selectedBooking"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </el-tooltip>
+          </div>
 
           <p v-if="!selectedBooking" class="empty">Выберите Запись в списке.</p>
-          <dl v-else class="details">
-            <div class="details-row">
-              <dt>Тип события</dt>
-              <dd>{{ typeName(selectedBooking.eventTypeId) }}</dd>
-            </div>
-            <div class="details-row">
-              <dt>Дата</dt>
-              <dd>{{ formatDate(selectedBooking.date) }}</dd>
-            </div>
-            <div class="details-row">
-              <dt>Время</dt>
-              <dd>{{ timeRange(selectedBooking) }}</dd>
-            </div>
-            <div class="details-row">
-              <dt>Имя</dt>
-              <dd>{{ selectedBooking.contact.name }}</dd>
-            </div>
-            <div class="details-row">
-              <dt>Телефон</dt>
-              <dd>{{ selectedBooking.contact.phone }}</dd>
-            </div>
-          </dl>
+          <template v-else>
+            <dl class="details">
+              <div class="details-row">
+                <dt>Тип события</dt>
+                <dd>{{ typeName(selectedBooking.eventTypeId) }}</dd>
+              </div>
+              <div class="details-row">
+                <dt>Дата</dt>
+                <dd>{{ formatDate(selectedBooking.date) }}</dd>
+              </div>
+              <div class="details-row">
+                <dt>Время</dt>
+                <dd>{{ timeRange(selectedBooking) }}</dd>
+              </div>
+              <div class="details-row">
+                <dt>Имя</dt>
+                <dd>{{ selectedBooking.contact.name }}</dd>
+              </div>
+              <div class="details-row">
+                <dt>Телефон</dt>
+                <dd>{{ selectedBooking.contact.phone }}</dd>
+              </div>
+            </dl>
+            <p v-if="cancelError" class="form-error" role="alert">{{ cancelError }}</p>
+          </template>
         </section>
       </div>
     </div>
@@ -162,6 +206,34 @@ const pickBooking = (booking: Booking) => {
   font-size: 17px;
   font-weight: 700;
   color: var(--el-text-color-primary);
+}
+
+/* Шапка карточки с действием: заголовок слева, кнопки — справа. */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card-head .card-title {
+  margin: 0;
+}
+
+.remove-button {
+  font-size: 18px;
+  color: var(--el-text-color-secondary);
+}
+
+.remove-button:hover:not(.is-disabled) {
+  color: var(--el-color-danger);
+}
+
+.form-error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--el-color-danger);
 }
 
 .empty {

@@ -43,6 +43,22 @@ export const listUpcomingBookings = (): Booking[] =>
     )
     .sort((a, b) => startTimestamp(a.date, a.startTime) - startTimestamp(b.date, b.startTime))
 
+/** Отменённая Запись остаётся в хранилище — меняется только статус, поэтому Слоты освобождаются. */
+export const cancelBooking = (id: string): Booking => {
+  const bookings = readStorage()
+  const booking = bookings.find((item) => item.id === id)
+  if (!booking) {
+    throw new Error('Запись не найдена')
+  }
+  if (booking.status === 'cancelled') {
+    throw new Error('Запись уже отменена')
+  }
+
+  const cancelled: Booking = { ...booking, status: 'cancelled' }
+  writeStorage(bookings.map((item) => (item.id === id ? cancelled : item)))
+  return cancelled
+}
+
 export const createBooking = (input: BookingInput): Booking => {
   const eventTypes = listEventTypes()
   const eventType = eventTypes.find((type) => type.id === input.eventTypeId)
