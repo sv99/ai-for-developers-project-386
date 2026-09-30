@@ -36,10 +36,12 @@ describe('EventsPage', () => {
     mockedList.mockReturnValue([])
   })
 
-  it('renders the type-choice heading', async () => {
+  it('renders the host card with the type-choice heading and hint', async () => {
     const { wrapper } = await mountPage()
 
-    expect(wrapper.text()).toContain('Выбор типа события')
+    expect(wrapper.text()).toContain('Владелец календаря')
+    expect(wrapper.text()).toContain('Выберите тип события')
+    expect(wrapper.text()).toContain('Нажмите на карточку, чтобы открыть календарь')
   })
 
   it('starts with an empty state when there are no types yet', async () => {

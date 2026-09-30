@@ -68,4 +68,29 @@ describe('eventTypes API', () => {
     expect(() => create({ name: 'Встреча', description: '', durationMinutes: -5 })).toThrow()
     expect(() => create({ name: 'Встреча', description: '', durationMinutes: 12.5 })).toThrow()
   })
+
+  it('seeds the default event type when nothing is stored', async () => {
+    const { ensureDefaultEventTypes, listEventTypes: list } = await importApi()
+
+    ensureDefaultEventTypes()
+
+    const stored = list()
+    expect(stored).toHaveLength(1)
+    expect(stored[0]?.name).toBe('Встреча 30 минут')
+    expect(stored[0]?.durationMinutes).toBe(30)
+    expect(stored[0]?.id).toBeTruthy()
+  })
+
+  it('keeps existing types when seeding', async () => {
+    const {
+      createEventType: create,
+      ensureDefaultEventTypes,
+      listEventTypes: list,
+    } = await importApi()
+
+    create({ name: 'Свой тип', description: '', durationMinutes: 15 })
+    ensureDefaultEventTypes()
+
+    expect(list().map((type) => type.name)).toEqual(['Свой тип'])
+  })
 })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Calendar } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -16,58 +17,123 @@ const choose = (eventType: EventType) => {
 
 <template>
   <el-main class="page">
-    <h1 class="page-title">Выбор типа события</h1>
-    <p class="page-text">
-      Выберите вид звонка — на следующем шаге останется подобрать удобное время.
-    </p>
+    <div class="content">
+      <section class="host-card">
+        <div class="host">
+          <span class="host-avatar">
+            <el-icon :size="26" color="#ff7a29"><Calendar /></el-icon>
+          </span>
+          <span class="host-meta">
+            <span class="host-name">Calendar</span>
+            <span class="host-role">Владелец календаря</span>
+          </span>
+        </div>
+        <h1 class="page-title">Выберите тип события</h1>
+        <p class="page-text">
+          Нажмите на карточку, чтобы открыть календарь и выбрать удобный слот.
+        </p>
+      </section>
 
-    <p v-if="eventTypes.length === 0" class="page-empty">
-      Пока нет ни одного типа событий. Владелец календаря может создать их в разделе «Предстоящие
-      события».
-    </p>
-    <ul v-else class="type-list">
-      <li v-for="eventType in eventTypes" :key="eventType.id">
-        <EventTypeCard
-          class="type-card--selectable"
-          :event-type="eventType"
-          role="button"
-          tabindex="0"
-          @click="choose(eventType)"
-          @keydown.enter.prevent="choose(eventType)"
-        />
-      </li>
-    </ul>
+      <p v-if="eventTypes.length === 0" class="page-empty">
+        Пока нет ни одного типа событий. Владелец календаря может создать их в разделе «Предстоящие
+        события».
+      </p>
+      <ul v-else class="type-list">
+        <li v-for="eventType in eventTypes" :key="eventType.id">
+          <EventTypeCard
+            class="type-card--selectable"
+            :event-type="eventType"
+            role="button"
+            tabindex="0"
+            @click="choose(eventType)"
+            @keydown.enter.prevent="choose(eventType)"
+          />
+        </li>
+      </ul>
+    </div>
   </el-main>
 </template>
 
 <style scoped>
 .page {
-  padding: 40px;
+  min-height: calc(100vh - 64px);
+  padding: 48px 24px;
+  background-color: var(--el-fill-color-light);
+}
+
+.content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.host-card {
+  margin-bottom: 24px;
+  padding: 28px 32px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 16px;
+  background-color: var(--el-bg-color);
+}
+
+.host {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.host-avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background-color: var(--el-fill-color-light);
+}
+
+.host-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.host-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
+}
+
+.host-role {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
 }
 
 .page-title {
-  margin: 0 0 12px;
+  margin: 20px 0 8px;
   font-size: 32px;
   font-weight: 700;
   color: var(--el-text-color-primary);
 }
 
 .page-text {
-  margin: 0 0 24px;
-  max-width: 640px;
+  margin: 0;
+  font-size: 15px;
   color: var(--el-text-color-secondary);
 }
 
 .page-empty {
   margin: 0;
-  max-width: 640px;
+  padding: 24px 28px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 12px;
+  background-color: var(--el-bg-color);
   color: var(--el-text-color-secondary);
 }
 
 .type-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 20px;
   margin: 0;
   padding: 0;
   list-style: none;

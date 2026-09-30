@@ -41,3 +41,16 @@ export const createEventType = (input: EventTypeInput): EventType => {
   writeStorage([...readStorage(), eventType])
   return eventType
 }
+
+const DEFAULT_EVENT_TYPE: EventTypeInput = {
+  name: 'Встреча 30 минут',
+  description: 'Базовый тип события для бронирования.',
+  durationMinutes: 30,
+}
+
+export const ensureDefaultEventTypes = (): void => {
+  if (readStorage().length > 0) {
+    return
+  }
+  createEventType(DEFAULT_EVENT_TYPE)
+}
