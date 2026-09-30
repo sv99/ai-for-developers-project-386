@@ -155,6 +155,7 @@ const pick = (cell: DayCell) => {
           'day--outside': !cell.inMonth,
           'day--muted': cell.past || cell.free === 0,
           'day--selected': cell.iso === modelValue,
+          'day--today': cell.iso === today,
         }"
         :disabled="cell.past || cell.free === 0"
         @click="pick(cell)"
@@ -273,7 +274,8 @@ const pick = (cell: DayCell) => {
   box-shadow: inset 0 0 0 1px var(--el-color-primary);
 }
 
-.day--selected .day-number {
+.day--selected .day-number,
+.day--today .day-number {
   font-weight: 700;
 }
 </style>
