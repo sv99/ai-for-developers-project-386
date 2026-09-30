@@ -55,8 +55,6 @@ const dayCell = (wrapper: Wrapper, day: number) =>
     .findAll('.day:not(.day--outside)')
     .find((cell) => cell.find('.day-number').text() === String(day))
 
-const removeButton = (wrapper: Wrapper) => wrapper.find('.remove-button')
-
 const pickBooking = async (wrapper: Wrapper) => {
   await wrapper.find('.booking').trigger('click')
 }
@@ -168,17 +166,19 @@ describe('UpcomingPage', () => {
     expect(dayCell(wrapper, 29)?.classes()).not.toContain('day--has-items')
   })
 
-  it('keeps the cancel action disabled until a booking is picked', async () => {
+  it('shows the cancel action only for a picked booking', async () => {
     mockedListUpcoming.mockReturnValue([booking()])
     const wrapper = mountPage()
 
-    expect(removeButton(wrapper)?.attributes('disabled')).toBeDefined()
-    expect(removeButton(wrapper)?.attributes('aria-label')).toBe('Удалить запись')
+    // По умолчанию Запись не выбрана — действия нет вовсе.
+    expect(wrapper.find('.remove-button').exists()).toBe(false)
 
     await pickDate(wrapper, WEDNESDAY)
-    await wrapper.find('.booking').trigger('click')
+    expect(wrapper.find('.remove-button').exists()).toBe(false)
 
-    expect(removeButton(wrapper)?.attributes('disabled')).toBeUndefined()
+    await pickBooking(wrapper)
+    expect(wrapper.find('.remove-button').exists()).toBe(true)
+    expect(wrapper.find('.remove-button').attributes('aria-label')).toBe('Удалить запись')
   })
 
   it('asks for confirmation before cancelling', async () => {
@@ -204,7 +204,6 @@ describe('UpcomingPage', () => {
 
     await pickDate(wrapper, WEDNESDAY)
     await pickBooking(wrapper)
-    await confirm(wrapper)
 
     mockedListUpcoming.mockReturnValue([])
     await confirm(wrapper)
@@ -212,6 +211,8 @@ describe('UpcomingPage', () => {
     expect(wrapper.findAll('.booking')).toHaveLength(0)
     expect(wrapper.text()).toContain('Выберите Запись в списке.')
     expect(dayCell(wrapper, 30)?.find('.day-count').text()).toBe('0 зап.')
+    // Запись пропала из списка — действие отмены тоже убирается.
+    expect(wrapper.find('.remove-button').exists()).toBe(false)
   })
 
   it('shows the reason when the booking cannot be cancelled', async () => {
