@@ -11,6 +11,12 @@
 - `pnpm format` — `oxfmt src/` (только `src/`, не весь репозиторий)
 - `pnpm build` — параллельно type-check + `vite build`
 
+## Локальное окружение и проверка UI (WSL)
+
+- `pnpm` здесь — **windows-версия** (`/mnt/c/nvm4w/nodejs/pnpm`): `pnpm dev`/`pnpm preview` поднимают сервер на стороне Windows, а `node_modules` содержит win32-бинарники. Linux-нодой Vite не запускается (`Cannot find native binding`) — это норма окружения, переустанавливать не нужно.
+- Поэтому `dev` и `preview` слушают `0.0.0.0`: из WSL сервер доступен по адресу Windows-хоста, а не по `localhost`. Нужный адрес — строка `Network` с пометкой `vEthernet (WSL)` в выводе `pnpm dev` (это `.1` подсети `eth0`).
+- UI проверяется MCP-сервером `playwright` (headless Chromium, настроен в `~/.config/opencode/opencode.json`): `browser_navigate` → `browser_snapshot` → `browser_take_screenshot`. Артефакты — в `.playwright-mcp/`.
+
 ## Стиль кода
 
 - Форматтер — oxfmt: **без точек с запятой, одинарные кавычки**. ESLint не форматирует код (`eslint-config-prettier`).
