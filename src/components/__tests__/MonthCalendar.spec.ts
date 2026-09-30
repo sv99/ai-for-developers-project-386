@@ -88,6 +88,14 @@ describe('MonthCalendar', () => {
     expect(dayInMonth(wrapper, 30)?.classes()).toContain('day--selected')
   })
 
+  it('marks today apart from the other days', () => {
+    const wrapper = mountCalendar()
+
+    expect(dayInMonth(wrapper, 28)?.classes()).toContain('day--today')
+    expect(dayInMonth(wrapper, 27)?.classes()).not.toContain('day--today')
+    expect(dayInMonth(wrapper, 30)?.classes()).not.toContain('day--today')
+  })
+
   it('moves to the next and previous month', async () => {
     const wrapper = mountCalendar()
 
