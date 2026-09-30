@@ -1,100 +1,42 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { createEventType, listEventTypes } from '@/api/eventTypes'
+import { listEventTypes } from '@/api/eventTypes'
 import type { EventType } from '@/api/types'
+import EventTypeCard from '@/components/EventTypeCard.vue'
 
+const router = useRouter()
 const eventTypes = ref<EventType[]>(listEventTypes())
-const createError = ref('')
 
-const formRef = ref<FormInstance>()
-const form = reactive<{ name: string; description: string; durationMinutes: number | undefined }>({
-  name: '',
-  description: '',
-  durationMinutes: 30,
-})
-
-const rules: FormRules = {
-  name: [
-    { required: true, whitespace: true, message: 'Введите название типа события', trigger: 'blur' },
-  ],
-  durationMinutes: [
-    { required: true, message: 'Укажите длительность в минутах', trigger: 'change' },
-  ],
-}
-
-const refresh = () => {
-  eventTypes.value = listEventTypes()
-}
-
-const onSubmit = async () => {
-  createError.value = ''
-  const valid = await formRef.value?.validate().catch(() => false)
-  if (!valid || !form.durationMinutes) {
-    return
-  }
-  try {
-    createEventType({
-      name: form.name,
-      description: form.description,
-      durationMinutes: form.durationMinutes,
-    })
-  } catch (error) {
-    createError.value =
-      error instanceof Error ? error.message : 'Не удалось создать тип события'
-    return
-  }
-  formRef.value?.resetFields()
-  refresh()
+const choose = (eventType: EventType) => {
+  router.push({ path: '/booking', query: { type: eventType.id } })
 }
 </script>
 
 <template>
   <el-main class="page">
-    <h1 class="page-title">Предстоящие события</h1>
+    <h1 class="page-title">Выбор типа события</h1>
+    <p class="page-text">
+      Выберите вид звонка — на следующем шаге останется подобрать удобное время.
+    </p>
 
-    <section class="event-types" aria-label="Типы событий">
-      <h2 class="section-title">Типы событий</h2>
-
-      <p v-if="eventTypes.length === 0" class="section-empty">Пока нет ни одного типа событий.</p>
-      <ul v-else class="type-list">
-        <li v-for="eventType in eventTypes" :key="eventType.id" class="type-card">
-          <div class="type-head">
-            <h3 class="type-name">{{ eventType.name }}</h3>
-            <el-tag class="type-duration" type="info" round
-              >{{ eventType.durationMinutes }} мин</el-tag
-            >
-          </div>
-          <p class="type-description">{{ eventType.description }}</p>
-        </li>
-      </ul>
-
-      <el-card class="create-card" shadow="never">
-        <template #header>
-          <span class="create-title">Новый тип события</span>
-        </template>
-        <el-form
-          ref="formRef"
-          :model="form"
-          :rules="rules"
-          label-position="top"
-          @submit.prevent="onSubmit"
-        >
-          <el-form-item label="Название" prop="name">
-            <el-input v-model="form.name" placeholder="Название" />
-          </el-form-item>
-          <el-form-item label="Описание" prop="description">
-            <el-input v-model="form.description" placeholder="Описание" />
-          </el-form-item>
-          <el-form-item label="Длительность (минуты)" prop="durationMinutes">
-            <el-input-number v-model="form.durationMinutes" :min="1" :precision="0" />
-          </el-form-item>
-          <p v-if="createError" class="create-error" role="alert">{{ createError }}</p>
-          <el-button native-type="submit" type="primary">Создать</el-button>
-        </el-form>
-      </el-card>
-    </section>
+    <p v-if="eventTypes.length === 0" class="page-empty">
+      Пока нет ни одного типа событий. Владелец календаря может создать их в разделе «Предстоящие
+      события».
+    </p>
+    <ul v-else class="type-list">
+      <li v-for="eventType in eventTypes" :key="eventType.id">
+        <EventTypeCard
+          class="type-card--selectable"
+          :event-type="eventType"
+          role="button"
+          tabindex="0"
+          @click="choose(eventType)"
+          @keydown.enter.prevent="choose(eventType)"
+        />
+      </li>
+    </ul>
   </el-main>
 </template>
 
@@ -104,21 +46,21 @@ const onSubmit = async () => {
 }
 
 .page-title {
-  margin: 0 0 24px;
+  margin: 0 0 12px;
   font-size: 32px;
   font-weight: 700;
   color: var(--el-text-color-primary);
 }
 
-.section-title {
-  margin: 0 0 16px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--el-text-color-primary);
+.page-text {
+  margin: 0 0 24px;
+  max-width: 640px;
+  color: var(--el-text-color-secondary);
 }
 
-.section-empty {
-  margin: 0 0 24px;
+.page-empty {
+  margin: 0;
+  max-width: 640px;
   color: var(--el-text-color-secondary);
 }
 
@@ -126,50 +68,18 @@ const onSubmit = async () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
-  margin: 0 0 24px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.type-card {
-  padding: 16px 20px;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 12px;
-  background-color: var(--el-bg-color);
+.type-card--selectable {
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
 }
 
-.type-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.type-name {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--el-text-color-primary);
-}
-
-.type-description {
-  margin: 8px 0 0;
-  color: var(--el-text-color-secondary);
-}
-
-.create-card {
-  max-width: 520px;
-  border-radius: 12px;
-}
-
-.create-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--el-text-color-primary);
-}
-
-.create-error {
-  margin: 0 0 16px;
-  color: var(--el-color-danger);
+.type-card--selectable:hover,
+.type-card--selectable:focus-visible {
+  box-shadow: var(--el-box-shadow-light);
 }
 </style>

@@ -6,6 +6,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import BookingPage from '@/views/BookingPage.vue'
 import EventsPage from '@/views/EventsPage.vue'
 import LandingPage from '@/views/LandingPage.vue'
+import UpcomingPage from '@/views/UpcomingPage.vue'
 
 import AppHeader from '../AppHeader.vue'
 
@@ -14,22 +15,34 @@ const mountHeader = () => {
     history: createWebHistory(),
     routes: [
       { path: '/', component: LandingPage },
-      { path: '/booking', component: BookingPage },
       { path: '/events', component: EventsPage },
+      { path: '/booking', component: BookingPage },
+      { path: '/upcoming', component: UpcomingPage },
     ],
   })
   const wrapper = mount(AppHeader, { global: { plugins: [router] } })
   return { wrapper, router }
 }
 
+const clickLink = async (wrapper: ReturnType<typeof mountHeader>['wrapper'], text: string) => {
+  const link = wrapper.findAll('.el-link').find((item) => item.text() === text)
+  if (!link) throw new Error(`Ссылка «${text}» не найдена`)
+  await link.trigger('click')
+  await flushPromises()
+}
+
 describe('AppHeader', () => {
-  it('leads to the booking page from the «Записаться» link', async () => {
+  it('leads to the type choice from the «Записаться» link', async () => {
     const { wrapper, router } = mountHeader()
     await router.isReady()
-    const bookingLink = wrapper.findAll('.el-link').find((link) => link.text() === 'Записаться')
-    if (!bookingLink) throw new Error('Ссылка «Записаться» не найдена')
-    await bookingLink.trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.path).toBe('/booking')
+    await clickLink(wrapper, 'Записаться')
+    expect(router.currentRoute.value.path).toBe('/events')
+  })
+
+  it('leads to the owner page from the «Предстоящие события» link', async () => {
+    const { wrapper, router } = mountHeader()
+    await router.isReady()
+    await clickLink(wrapper, 'Предстоящие события')
+    expect(router.currentRoute.value.path).toBe('/upcoming')
   })
 })

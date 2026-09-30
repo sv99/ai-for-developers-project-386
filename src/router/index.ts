@@ -6,8 +6,9 @@ export default createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'landing', component: LandingPage },
-    { path: '/booking', name: 'booking', component: () => import('@/views/BookingPage.vue') },
     { path: '/events', name: 'events', component: () => import('@/views/EventsPage.vue') },
+    { path: '/booking', name: 'booking', component: () => import('@/views/BookingPage.vue') },
+    { path: '/upcoming', name: 'upcoming', component: () => import('@/views/UpcomingPage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

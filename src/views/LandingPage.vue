@@ -21,7 +21,7 @@ const features = [
           Один экран, понятные слоты, быстрая бронь. Выберите время и запишитесь на звонок без
           лишних шагов.
         </p>
-        <el-button class="hero-button" size="large" round @click="router.push('/booking')">
+        <el-button class="hero-button" size="large" round @click="router.push('/events')">
           Записаться
           <el-icon class="hero-button-icon"><ArrowRight /></el-icon>
         </el-button>

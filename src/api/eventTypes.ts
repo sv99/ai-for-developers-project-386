@@ -1,15 +1,9 @@
+import { generateId } from './id'
 import type { EventType } from './types'
 
 const STORAGE_KEY = 'calendar-event-types'
 
 type EventTypeInput = Omit<EventType, 'id'>
-
-const generateId = (): string => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID()
-  }
-  return `et-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-}
 
 const readStorage = (): EventType[] => {
   const raw = localStorage.getItem(STORAGE_KEY)
