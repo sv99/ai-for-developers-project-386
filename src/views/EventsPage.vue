@@ -23,7 +23,7 @@ const choose = (eventType: EventType) => {
       <section class="host-card">
         <div class="host">
           <span class="host-avatar">
-            <el-icon :size="26" color="#ff7a29"><User /></el-icon>
+            <el-icon :size="26" color="var(--el-color-primary)"><User /></el-icon>
           </span>
           <span class="host-meta">
             <span class="host-name">{{ calendarName }}</span>

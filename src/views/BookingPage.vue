@@ -297,15 +297,6 @@ const bookAgain = () => {
 
 <style scoped>
 .page {
-  /* Оранжевый primary — как в образце; живёт на странице, пока не переехал в общую тему. */
-  --el-color-primary: #ff7a29;
-  --el-color-primary-light-3: #ffa76a;
-  --el-color-primary-light-5: #ffbc8f;
-  --el-color-primary-light-7: #ffd1b3;
-  --el-color-primary-light-8: #ffdcc4;
-  --el-color-primary-light-9: #fff2e9;
-  --el-color-primary-dark-2: #d95f14;
-
   min-height: calc(100vh - 64px);
   padding: 40px 24px;
   background-color: var(--el-fill-color-light);
