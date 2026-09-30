@@ -22,6 +22,11 @@ const timeRange = (booking: Booking) => {
 const selectedDate = ref('')
 const selectedId = ref('')
 const cancelError = ref('')
+/** Кнопка удаления — её же указываем как virtual-ref подсказке и попапу подтверждения. */
+const removeRef = ref<{ $el: HTMLElement } | null>(null)
+
+/** virtual-ref ждёт элемент (Measurable), поэтому наружу отдаём `$el`, а не экземпляр. */
+const removeElement = computed(() => removeRef.value?.$el)
 
 const countByDate = computed(() => {
   const counts = new Map<string, number>()
@@ -113,21 +118,45 @@ const cancel = () => {
           <div class="card-head">
             <h2 class="card-title">Информация о записи</h2>
 
-            <el-popconfirm
-              v-if="selectedBooking"
-              title="Отменить эту Запись?"
-              confirm-button-text="Да, отменить"
-              cancel-button-text="Нет"
-              confirm-button-type="danger"
-              width="240"
-              @confirm="cancel"
-            >
-              <template #reference>
-                <el-button class="remove-button" text circle aria-label="Удалить запись">
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-              </template>
-            </el-popconfirm>
+            <template v-if="selectedBooking">
+              <!--
+                Подсказка и попап подтверждения висят на одной кнопке через virtual-ref: обёртка
+                вокруг ElPopconfirm не годится — вложенный тултип попадает на его Comment-рут,
+                и Vue ругается на директиву («non-element root node»). Текст в слоте нужен
+                только чтобы ElPopconfirm не искал reference-слот.
+              -->
+              <el-button
+                ref="removeRef"
+                class="remove-button"
+                text
+                circle
+                aria-label="Удалить запись"
+              >
+                <el-icon><Delete /></el-icon>
+              </el-button>
+
+              <el-tooltip
+                content="Удалить запись"
+                :show-after="200"
+                :virtual-ref="removeElement"
+                virtual-triggering
+              />
+
+              <!-- Слот нужен только чтобы ElPopconfirm не искал reference-слот. -->
+              <el-popconfirm
+                title="Отменить эту Запись?"
+                confirm-button-text="Да, отменить"
+                cancel-button-text="Нет"
+                confirm-button-type="danger"
+                width="240"
+                :virtual-ref="removeElement"
+                @confirm="cancel"
+              >
+                <template #reference>
+                  <span class="visually-hidden">Удалить запись</span>
+                </template>
+              </el-popconfirm>
+            </template>
           </div>
 
           <p v-if="!selectedBooking" class="empty">Выберите Запись в списке.</p>
@@ -217,6 +246,15 @@ const cancel = () => {
 .remove-button {
   font-size: 18px;
   color: var(--el-text-color-secondary);
+}
+
+/* Служебный слот попапа не должен попадать на экран. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
 .remove-button:hover:not(.is-disabled) {
