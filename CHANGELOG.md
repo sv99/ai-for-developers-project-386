@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.5.0...v1.5.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* убрать предупреждение Vue о директиве в попапе подтверждения ([#49](https://github.com/sv99/ai-for-developers-project-386/issues/49)) ([b1ae398](https://github.com/sv99/ai-for-developers-project-386/commit/b1ae3983c646a9bde80b94f3419b20addd0e6955))
+
 ## [1.5.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.4.0...v1.5.0) (2026-09-30)
 
 
