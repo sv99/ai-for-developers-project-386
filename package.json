@@ -15,7 +15,8 @@
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "oxfmt src/"
+    "format": "oxfmt src/",
+    "tsp:check": "tsp compile typespec/main.tsp --no-emit"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
@@ -27,6 +28,7 @@
     "@tsconfig/node24": "^24.0.5",
     "@types/jsdom": "^30.0.0",
     "@types/node": "^24.13.4",
+    "@typespec/compiler": "^1.16.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/test-utils": "^2.5.0",
