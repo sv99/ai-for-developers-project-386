@@ -201,6 +201,8 @@ const onSubmit = async () => {
 }
 
 .confirmation {
+  --el-card-border-color: var(--el-border-color);
+
   max-width: 640px;
   border-radius: 12px;
 }
