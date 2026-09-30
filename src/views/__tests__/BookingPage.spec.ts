@@ -23,6 +23,7 @@ vi.mock('@/api/bookings', () => ({
 }))
 
 vi.mock('@/api/availability', () => ({
+  bookingWindowEnd: vi.fn(() => '2026-10-19'),
   countFreeSlots: vi.fn(),
   listDayStarts: vi.fn(),
 }))

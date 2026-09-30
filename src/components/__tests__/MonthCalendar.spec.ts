@@ -6,10 +6,21 @@ import MonthCalendar from '../MonthCalendar.vue'
 
 const TODAY = '2026-03-28'
 
-const mountCalendar = (props: Record<string, unknown> = {}) =>
-  mount(MonthCalendar, {
-    props: { modelValue: '', counts: () => 18, today: TODAY, ...props },
+/** Прибавляет дни к дате в формате YYYY-MM-DD. */
+const plusDays = (iso: string, days: number) => {
+  const [year = '2026', month = '1', day = '1'] = iso.split('-')
+  const date = new Date(Number(year), Number(month) - 1, Number(day) + days)
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+const mountCalendar = (props: Record<string, unknown> = {}) => {
+  const today = typeof props.today === 'string' && props.today ? props.today : TODAY
+  return mount(MonthCalendar, {
+    // По умолчанию окно регистрации открыто на 14 дней вперёд от today.
+    props: { modelValue: '', counts: () => 18, today, windowEnd: plusDays(today, 14), ...props },
   })
+}
 
 const dayInMonth = (wrapper: ReturnType<typeof mountCalendar>, number: number) =>
   wrapper
@@ -104,5 +115,45 @@ describe('MonthCalendar', () => {
 
     await wrapper.findAll('.nav-button')[0]?.trigger('click')
     expect(wrapper.find('.calendar-month').text()).toBe('март 2026 г.')
+  })
+
+  it('locks the months outside the booking window', async () => {
+    const wrapper = mountCalendar()
+    const disabled = () =>
+      wrapper.findAll('.nav-button').map((button) => button.attributes('disabled') !== undefined)
+
+    // Сегодня 28 марта, окно открыто до 11 апреля: назад некуда, вперёд можно.
+    expect(disabled()).toEqual([true, false])
+
+    await wrapper.findAll('.nav-button')[1]?.trigger('click')
+
+    expect(wrapper.find('.calendar-month').text()).toBe('апрель 2026 г.')
+    expect(disabled()).toEqual([false, true])
+  })
+
+  it('locks both month buttons while the window fits into one month', () => {
+    // Сегодня 5 марта, окно закрывается 19 марта — весь он в одном месяце.
+    const wrapper = mountCalendar({ today: '2026-03-05' })
+
+    expect(
+      wrapper.findAll('.nav-button').map((button) => button.attributes('disabled') !== undefined),
+    ).toEqual([true, true])
+  })
+
+  it('mutes the days beyond the booking window', async () => {
+    // Сегодня 5 марта, окно закрывается 19 марта.
+    const wrapper = mountCalendar({ today: '2026-03-05' })
+
+    const lastDay = dayInMonth(wrapper, 19)
+    const beyondDay = dayInMonth(wrapper, 20)
+
+    expect(lastDay?.classes()).not.toContain('day--muted')
+    expect(lastDay?.find('.day-free').text()).toBe('18 св.')
+    expect(beyondDay?.classes()).toContain('day--muted')
+    expect(beyondDay?.find('.day-free').exists()).toBe(false)
+
+    await beyondDay?.trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 })

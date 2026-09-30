@@ -17,6 +17,9 @@ const contact = { name: 'Анна', phone: '+7 900 000-00-00' }
 const TODAY = '2026-03-28'
 const TOMORROW = '2026-03-29'
 const YESTERDAY = '2026-03-27'
+/** Сегодня + 14 дней — последний день окна регистрации. */
+const WINDOW_END = '2026-04-11'
+const BEYOND_WINDOW = '2026-04-12'
 
 describe('availability API', () => {
   beforeEach(() => {
@@ -75,6 +78,17 @@ describe('availability API', () => {
 
     expect(api.countFreeSlots(YESTERDAY)).toBe(0)
     expect(api.listDaySlots(YESTERDAY).every((slot) => slot.status === 'taken')).toBe(true)
+  })
+
+  it('marks the days beyond the booking window as taken', async () => {
+    const api = await importApi()
+
+    expect(api.bookingWindowEnd()).toBe(WINDOW_END)
+    expect(api.isBookableDate(TOMORROW)).toBe(true)
+    expect(api.isBookableDate(WINDOW_END)).toBe(true)
+    expect(api.isBookableDate(BEYOND_WINDOW)).toBe(false)
+    expect(api.countFreeSlots(BEYOND_WINDOW)).toBe(0)
+    expect(api.listDaySlots(BEYOND_WINDOW).every((slot) => slot.status === 'taken')).toBe(true)
   })
 
   it('marks the start times that already passed today as taken', async () => {

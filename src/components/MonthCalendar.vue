@@ -10,8 +10,10 @@ const props = withDefaults(
     counts: (date: string) => number
     /** Сегодняшняя дата; нужна только тестам. */
     today?: string
+    /** Последний день окна регистрации; пустая строка — без ограничения. */
+    windowEnd?: string
   }>(),
-  { today: '' },
+  { today: '', windowEnd: '' },
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -68,12 +70,26 @@ watch(
 
 const monthLabel = computed(() => `${MONTHS[viewMonth.value]} ${viewYear.value} г.`)
 
+/** Номер месяца от начала лет — по нему сравниваются месяцы разных лет. */
+const monthIndex = (iso: string) => Number(iso.slice(0, 4)) * 12 + Number(iso.slice(5, 7)) - 1
+
+const viewIndex = computed(() => viewYear.value * 12 + viewMonth.value)
+
+const canGoBack = computed(() => viewIndex.value > monthIndex(today.value))
+const canGoForward = computed(
+  () => props.windowEnd === '' || viewIndex.value < monthIndex(props.windowEnd),
+)
+
 type DayCell = {
   iso: string
   day: number
   inMonth: boolean
   past: boolean
+  /** День за окном регистрации — записаться на него нельзя. */
+  beyond: boolean
   free: number
+  /** День можно выбрать: он не прошёл, попадает в окно и имеет свободные Слоты. */
+  available: boolean
 }
 
 const cells = computed<DayCell[]>(() => {
@@ -85,25 +101,33 @@ const cells = computed<DayCell[]>(() => {
   return Array.from({ length: total }, (_value, index) => {
     const date = new Date(viewYear.value, viewMonth.value, 1 - offset + index)
     const iso = toIso(date.getFullYear(), date.getMonth(), date.getDate())
+    const past = iso < today.value
+    const beyond = props.windowEnd !== '' && iso > props.windowEnd
+    const free = props.counts(iso)
 
     return {
       iso,
       day: date.getDate(),
       inMonth: date.getMonth() === viewMonth.value,
-      past: iso < today.value,
-      free: props.counts(iso),
+      past,
+      beyond,
+      free,
+      available: !past && !beyond && free > 0,
     }
   })
 })
 
 const shiftMonth = (delta: number) => {
+  if (delta < 0 ? !canGoBack.value : !canGoForward.value) {
+    return
+  }
   const next = new Date(viewYear.value, viewMonth.value + delta, 1)
   viewYear.value = next.getFullYear()
   viewMonth.value = next.getMonth()
 }
 
 const pick = (cell: DayCell) => {
-  if (cell.past || cell.free === 0) {
+  if (!cell.available) {
     return
   }
   if (!cell.inMonth) {
@@ -124,6 +148,7 @@ const pick = (cell: DayCell) => {
           class="nav-button"
           type="button"
           aria-label="Предыдущий месяц"
+          :disabled="!canGoBack"
           @click="shiftMonth(-1)"
         >
           <el-icon><ArrowLeft /></el-icon>
@@ -132,6 +157,7 @@ const pick = (cell: DayCell) => {
           class="nav-button"
           type="button"
           aria-label="Следующий месяц"
+          :disabled="!canGoForward"
           @click="shiftMonth(1)"
         >
           <el-icon><ArrowRight /></el-icon>
@@ -153,15 +179,15 @@ const pick = (cell: DayCell) => {
         class="day"
         :class="{
           'day--outside': !cell.inMonth,
-          'day--muted': cell.past || cell.free === 0,
+          'day--muted': !cell.available,
           'day--selected': cell.iso === modelValue,
           'day--today': cell.iso === today,
         }"
-        :disabled="cell.past || cell.free === 0"
+        :disabled="!cell.available"
         @click="pick(cell)"
       >
         <span class="day-number">{{ cell.day }}</span>
-        <span v-if="!cell.past" class="day-free">{{ cell.free }} св.</span>
+        <span v-if="!cell.past && !cell.beyond" class="day-free">{{ cell.free }} св.</span>
       </button>
     </div>
   </div>
@@ -200,9 +226,15 @@ const pick = (cell: DayCell) => {
   cursor: pointer;
 }
 
-.nav-button:hover {
+.nav-button:hover:not(:disabled) {
   border-color: var(--el-color-primary);
   color: var(--el-color-primary);
+}
+
+.nav-button:disabled {
+  border-color: var(--el-border-color-lighter);
+  color: var(--el-text-color-disabled);
+  cursor: default;
 }
 
 .calendar-month {
