@@ -8,7 +8,7 @@ const router = useRouter()
 <template>
   <el-header class="app-header">
     <RouterLink class="brand" to="/">
-      <el-icon class="brand-icon" :size="28" color="#ff7a29">
+      <el-icon class="brand-icon" :size="28" color="var(--el-color-primary)">
         <Calendar />
       </el-icon>
       <span class="brand-name">Calendar</span>
