@@ -14,8 +14,8 @@ const router = useRouter()
       <span class="brand-name">Calendar</span>
     </RouterLink>
     <el-space :size="24" spacer-class="nav-links">
-      <el-link underline="never" @click="router.push('/booking')">Записаться</el-link>
-      <el-link underline="never" @click="router.push('/events')">Предстоящие события</el-link>
+      <el-link underline="never" @click="router.push('/events')">Записаться</el-link>
+      <el-link underline="never" @click="router.push('/upcoming')">Предстоящие события</el-link>
     </el-space>
   </el-header>
 </template>
