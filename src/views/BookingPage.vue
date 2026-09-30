@@ -474,8 +474,10 @@ const bookAgain = () => {
   font-weight: 700;
 }
 
+/* Всплывающее снизу сообщение об ошибке поля рисуется поверх следующего поля,
+   поэтому между полями нужен запас под него. */
 .contact-form :deep(.el-form-item) {
-  margin-bottom: 12px;
+  margin-bottom: 28px;
 }
 
 .submit-button {
