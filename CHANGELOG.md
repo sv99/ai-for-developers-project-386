@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.3.0...v1.4.0) (2026-09-30)
+
+
+### Features
+
+* в журнале подсвечивать дни с Записями фоном ([#40](https://github.com/sv99/ai-for-developers-project-386/issues/40)) ([48df1cf](https://github.com/sv99/ai-for-developers-project-386/commit/48df1cf97b1f449d5fe22f94b46d1e3436ad5e79))
+* журнал Предстоящих событий — календарь, Записи дня и детали Записи ([#37](https://github.com/sv99/ai-for-developers-project-386/issues/37)) ([0751728](https://github.com/sv99/ai-for-developers-project-386/commit/0751728f0270e96e45485b12694e2dbf82c785e0))
+* оранжевый акцент — общая тема проекта ([#38](https://github.com/sv99/ai-for-developers-project-386/issues/38)) ([dc98c9b](https://github.com/sv99/ai-for-developers-project-386/commit/dc98c9b4dbce298fd40349a4b5e6c38be115a612))
+
+
+### Bug Fixes
+
+* вернуть бейджу на главной белый фон и серый текст ([#42](https://github.com/sv99/ai-for-developers-project-386/issues/42)) ([8b07ded](https://github.com/sv99/ai-for-developers-project-386/commit/8b07dedb6b42665b5bc8b78f10eb2ee97ef9b816))
+* поместить подсказки полей в блоке подтверждения записи ([#41](https://github.com/sv99/ai-for-developers-project-386/issues/41)) ([5226567](https://github.com/sv99/ai-for-developers-project-386/commit/522656750e6a679bc9d22d48b6103d4d42ecad57))
+
 ## [1.3.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.2.0...v1.3.0) (2026-09-30)
 
 
