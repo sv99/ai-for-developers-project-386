@@ -56,6 +56,11 @@ const features = [
 }
 
 .hero-tag {
+  /* Стиль бейджа перебит явно: el-tag по умолчанию берёт акцентный цвет темы. */
+  --el-tag-bg-color: var(--el-bg-color);
+  --el-tag-border-color: var(--el-border-color);
+  --el-tag-text-color: var(--el-color-info-dark-2);
+
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
