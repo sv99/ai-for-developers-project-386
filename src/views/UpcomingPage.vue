@@ -60,6 +60,7 @@ const pickBooking = (booking: Booking) => {
             :model-value="selectedDate"
             :counts="countBookings"
             count-suffix="зап."
+            highlight-full
             @update:model-value="pickDate"
           />
         </section>

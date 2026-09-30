@@ -136,8 +136,10 @@ describe('UpcomingPage', () => {
 
     expect(dayCell(wrapper, 30)?.find('.day-count').text()).toBe('2 зап.')
     expect(dayCell(wrapper, 30)?.classes()).not.toContain('day--muted')
+    expect(dayCell(wrapper, 30)?.classes()).toContain('day--has-items')
 
     expect(dayCell(wrapper, 29)?.find('.day-count').text()).toBe('0 зап.')
     expect(dayCell(wrapper, 29)?.classes()).toContain('day--muted')
+    expect(dayCell(wrapper, 29)?.classes()).not.toContain('day--has-items')
   })
 })
