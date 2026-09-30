@@ -9,6 +9,7 @@ export default createRouter({
     { path: '/events', name: 'events', component: () => import('@/views/EventsPage.vue') },
     { path: '/booking', name: 'booking', component: () => import('@/views/BookingPage.vue') },
     { path: '/upcoming', name: 'upcoming', component: () => import('@/views/UpcomingPage.vue') },
+    { path: '/admin', name: 'admin', component: () => import('@/views/AdminPage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

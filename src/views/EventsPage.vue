@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { Calendar } from '@element-plus/icons-vue'
+import { User } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { listEventTypes } from '@/api/eventTypes'
+import { getCalendarName } from '@/api/settings'
 import type { EventType } from '@/api/types'
 import EventTypeCard from '@/components/EventTypeCard.vue'
 
 const router = useRouter()
 const eventTypes = ref<EventType[]>(listEventTypes())
+const calendarName = getCalendarName()
 
 const choose = (eventType: EventType) => {
   router.push({ path: '/booking', query: { type: eventType.id } })
@@ -21,10 +23,10 @@ const choose = (eventType: EventType) => {
       <section class="host-card">
         <div class="host">
           <span class="host-avatar">
-            <el-icon :size="26" color="#ff7a29"><Calendar /></el-icon>
+            <el-icon :size="26" color="#ff7a29"><User /></el-icon>
           </span>
           <span class="host-meta">
-            <span class="host-name">Calendar</span>
+            <span class="host-name">{{ calendarName }}</span>
             <span class="host-role">Владелец календаря</span>
           </span>
         </div>

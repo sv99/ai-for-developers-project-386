@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
 
+import AdminPage from '@/views/AdminPage.vue'
 import BookingPage from '@/views/BookingPage.vue'
 import EventsPage from '@/views/EventsPage.vue'
 import LandingPage from '@/views/LandingPage.vue'
@@ -18,6 +19,7 @@ const mountHeader = () => {
       { path: '/events', component: EventsPage },
       { path: '/booking', component: BookingPage },
       { path: '/upcoming', component: UpcomingPage },
+      { path: '/admin', component: AdminPage },
     ],
   })
   const wrapper = mount(AppHeader, { global: { plugins: [router] } })
@@ -39,10 +41,17 @@ describe('AppHeader', () => {
     expect(router.currentRoute.value.path).toBe('/events')
   })
 
-  it('leads to the owner page from the «Предстоящие события» link', async () => {
+  it('leads to the owner journal from the «Предстоящие события» link', async () => {
     const { wrapper, router } = mountHeader()
     await router.isReady()
     await clickLink(wrapper, 'Предстоящие события')
     expect(router.currentRoute.value.path).toBe('/upcoming')
+  })
+
+  it('leads to the settings from the «Настройки» link', async () => {
+    const { wrapper, router } = mountHeader()
+    await router.isReady()
+    await clickLink(wrapper, 'Настройки')
+    expect(router.currentRoute.value.path).toBe('/admin')
   })
 })

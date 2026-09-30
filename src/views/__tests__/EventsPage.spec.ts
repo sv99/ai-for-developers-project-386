@@ -4,6 +4,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { listEventTypes } from '@/api/eventTypes'
+import { getCalendarName } from '@/api/settings'
 
 import BookingPage from '../BookingPage.vue'
 import EventsPage from '../EventsPage.vue'
@@ -14,7 +15,14 @@ vi.mock('@/api/eventTypes', () => ({
   listEventTypes: vi.fn(),
 }))
 
+vi.mock('@/api/settings', () => ({
+  DEFAULT_CALENDAR_NAME: 'Владелец',
+  getCalendarName: vi.fn(),
+  setCalendarName: vi.fn(),
+}))
+
 const mockedList = vi.mocked(listEventTypes)
+const mockedGetName = vi.mocked(getCalendarName)
 
 const mountPage = async () => {
   const router = createRouter({
@@ -34,14 +42,23 @@ describe('EventsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockedList.mockReturnValue([])
+    mockedGetName.mockReturnValue('Владелец')
   })
 
-  it('renders the host card with the type-choice heading and hint', async () => {
+  it('renders the host card with the owner name, role and type-choice heading', async () => {
     const { wrapper } = await mountPage()
 
+    expect(wrapper.find('.host-name').text()).toBe('Владелец')
     expect(wrapper.text()).toContain('Владелец календаря')
     expect(wrapper.text()).toContain('Выберите тип события')
     expect(wrapper.text()).toContain('Нажмите на карточку, чтобы открыть календарь')
+  })
+
+  it('shows the configured calendar name', async () => {
+    mockedGetName.mockReturnValue('Команда Тота')
+    const { wrapper } = await mountPage()
+
+    expect(wrapper.find('.host-name').text()).toBe('Команда Тота')
   })
 
   it('starts with an empty state when there are no types yet', async () => {
