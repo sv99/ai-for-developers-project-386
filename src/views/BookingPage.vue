@@ -10,22 +10,7 @@ import { listEventTypes } from '@/api/eventTypes'
 import { SLOT_MINUTES } from '@/api/slots'
 import type { Booking, EventType } from '@/api/types'
 import MonthCalendar from '@/components/MonthCalendar.vue'
-
-const MONTHS = [
-  'января',
-  'февраля',
-  'марта',
-  'апреля',
-  'мая',
-  'июня',
-  'июля',
-  'августа',
-  'сентября',
-  'октября',
-  'ноября',
-  'декабря',
-]
-const WEEKDAYS = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
+import { formatDate, formatDayLabel } from '@/utils/dates'
 
 const route = useRoute()
 const router = useRouter()
@@ -63,19 +48,9 @@ watch([selectedDate, duration], () => {
   }
 })
 
-const formatDate = (iso: string) => {
-  const [year = '', month = '', day = ''] = iso.split('-')
-  return `${day}.${month}.${year}`
-}
-
-const dateLabel = computed(() => {
-  if (!selectedDate.value) {
-    return 'Дата не выбрана'
-  }
-  const date = new Date(`${selectedDate.value}T00:00:00`)
-  const weekday = WEEKDAYS[(date.getDay() + 6) % 7] ?? ''
-  return `${weekday}, ${date.getDate()} ${MONTHS[date.getMonth()]}`
-})
+const dateLabel = computed(() =>
+  selectedDate.value ? formatDayLabel(selectedDate.value) : 'Дата не выбрана',
+)
 
 const timeLabel = computed(() => {
   const slot = daySlots.value.find((item) => item.startTime === selectedStart.value)
@@ -212,7 +187,11 @@ const bookAgain = () => {
 
         <template v-if="step === 'slot'">
           <section class="card">
-            <MonthCalendar v-model="selectedDate" :counts="countFreeSlots" :window-end="windowEnd" />
+            <MonthCalendar
+              v-model="selectedDate"
+              :counts="countFreeSlots"
+              :window-end="windowEnd"
+            />
           </section>
 
           <section class="card slots">

@@ -1,6 +1,6 @@
 import { listEventTypes } from './eventTypes'
 import { generateId } from './id'
-import { bookingRange, fitsInDay, isStartTime, overlaps } from './slots'
+import { bookingRange, fitsInDay, isStartTime, overlaps, startTimestamp } from './slots'
 import type { Booking, Contact } from './types'
 
 const STORAGE_KEY = 'calendar-bookings'
@@ -30,6 +30,18 @@ const writeStorage = (bookings: Booking[]): void => {
 }
 
 export const listBookings = (): Booking[] => readStorage()
+
+/**
+ * Предстоящие Записи — журнал владельца: активные Записи, начало которых ещё не прошло,
+ * в порядке времени начала. Прошедшие и отменённые не показываются.
+ */
+export const listUpcomingBookings = (): Booking[] =>
+  readStorage()
+    .filter(
+      (booking) =>
+        booking.status === 'active' && startTimestamp(booking.date, booking.startTime) > Date.now(),
+    )
+    .sort((a, b) => startTimestamp(a.date, a.startTime) - startTimestamp(b.date, b.startTime))
 
 export const createBooking = (input: BookingInput): Booking => {
   const eventTypes = listEventTypes()
