@@ -6,14 +6,16 @@ const props = withDefaults(
   defineProps<{
     /** Выбранная дата в формате YYYY-MM-DD; пустая строка — дата не выбрана. */
     modelValue: string
-    /** Сколько Слотов дня свободно — подпись «N св.» под числом. */
+    /** Сколько единиц у дня: свободные Слоты на странице Записи, Записи — в журнале. */
     counts: (date: string) => number
+    /** Единица в подписи дня: «N св.» на странице Записи, «N зап.» в журнале. */
+    countSuffix?: string
     /** Сегодняшняя дата; нужна только тестам. */
     today?: string
     /** Последний день окна регистрации; пустая строка — без ограничения. */
     windowEnd?: string
   }>(),
-  { today: '', windowEnd: '' },
+  { countSuffix: 'св.', today: '', windowEnd: '' },
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -187,7 +189,9 @@ const pick = (cell: DayCell) => {
         @click="pick(cell)"
       >
         <span class="day-number">{{ cell.day }}</span>
-        <span v-if="!cell.past && !cell.beyond" class="day-free">{{ cell.free }} св.</span>
+        <span v-if="!cell.past && !cell.beyond" class="day-count">
+          {{ cell.free }} {{ countSuffix }}
+        </span>
       </button>
     </div>
   </div>
@@ -286,7 +290,7 @@ const pick = (cell: DayCell) => {
   line-height: 1.2;
 }
 
-.day-free {
+.day-count {
   font-size: 11px;
   line-height: 1.2;
   color: var(--el-text-color-secondary);
@@ -295,7 +299,7 @@ const pick = (cell: DayCell) => {
 /* Дни соседних месяцев не приглушаем отдельно: серыми остаются только дни вне окна
    регистрации и дни без свободных Слотов — это задаёт .day--muted. */
 .day--muted .day-number,
-.day--muted .day-free {
+.day--muted .day-count {
   color: var(--el-text-color-disabled);
 }
 

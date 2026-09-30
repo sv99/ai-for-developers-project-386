@@ -18,6 +18,10 @@ export const toTime = (minutes: number): string => {
   return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
 }
 
+/** Момент начала времени в локальном времени браузера — в миллисекундах. */
+export const startTimestamp = (date: string, startTime: string): number =>
+  new Date(`${date}T${startTime}:00`).getTime()
+
 export const listStartTimes = (): string[] => {
   const times: string[] = []
   for (let minutes = DAY_START_MINUTES; minutes < DAY_END_MINUTES; minutes += SLOT_MINUTES) {

@@ -1,6 +1,14 @@
 import { listBookings } from './bookings'
 import { listEventTypes } from './eventTypes'
-import { bookingRange, fitsInDay, listStartTimes, SLOT_MINUTES, toMinutes, toTime } from './slots'
+import {
+  bookingRange,
+  fitsInDay,
+  listStartTimes,
+  SLOT_MINUTES,
+  startTimestamp,
+  toMinutes,
+  toTime,
+} from './slots'
 
 export type SlotStatus = 'free' | 'taken'
 
@@ -37,7 +45,7 @@ export const isBookableDate = (date: string): boolean =>
  * забронировать прошедшее время нельзя, поэтому для посетителя оно недоступно.
  */
 const isPastStart = (date: string, startTime: string): boolean =>
-  new Date(`${date}T${startTime}:00`).getTime() <= Date.now()
+  startTimestamp(date, startTime) <= Date.now()
 
 const takenMinutes = (date: string): Set<number> => {
   const durations = new Map(listEventTypes().map((type) => [type.id, type.durationMinutes]))

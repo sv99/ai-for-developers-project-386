@@ -48,9 +48,9 @@ describe('MonthCalendar', () => {
   it('shows the free slots count for today and future days only', () => {
     const wrapper = mountCalendar()
 
-    expect(wrapper.findAll('.day-free')).toHaveLength(9)
-    expect(dayInMonth(wrapper, 28)?.find('.day-free').text()).toBe('18 св.')
-    expect(dayInMonth(wrapper, 27)?.find('.day-free').exists()).toBe(false)
+    expect(wrapper.findAll('.day-count')).toHaveLength(9)
+    expect(dayInMonth(wrapper, 28)?.find('.day-count').text()).toBe('18 св.')
+    expect(dayInMonth(wrapper, 27)?.find('.day-count').exists()).toBe(false)
     expect(dayInMonth(wrapper, 27)?.classes()).toContain('day--muted')
   })
 
@@ -59,8 +59,8 @@ describe('MonthCalendar', () => {
 
     expect(wrapper.find('.calendar-month').text()).toBe('сентябрь 2026 г.')
     expect(wrapper.findAll('.day')).toHaveLength(35)
-    expect(wrapper.findAll('.day-free')).toHaveLength(5)
-    expect(wrapper.findAll('.day-free').map((item) => item.text())).toEqual([
+    expect(wrapper.findAll('.day-count')).toHaveLength(5)
+    expect(wrapper.findAll('.day-count').map((item) => item.text())).toEqual([
       '18 св.',
       '18 св.',
       '18 св.',
@@ -148,9 +148,9 @@ describe('MonthCalendar', () => {
     const beyondDay = dayInMonth(wrapper, 20)
 
     expect(lastDay?.classes()).not.toContain('day--muted')
-    expect(lastDay?.find('.day-free').text()).toBe('18 св.')
+    expect(lastDay?.find('.day-count').text()).toBe('18 св.')
     expect(beyondDay?.classes()).toContain('day--muted')
-    expect(beyondDay?.find('.day-free').exists()).toBe(false)
+    expect(beyondDay?.find('.day-count').exists()).toBe(false)
 
     await beyondDay?.trigger('click')
 
@@ -168,10 +168,16 @@ describe('MonthCalendar', () => {
 
     // День из окна регистрации не приглушается, даже если он из соседнего месяца.
     expect(sept30?.classes()).not.toContain('day--muted')
-    expect(sept30?.find('.day-free').text()).toBe('18 св.')
+    expect(sept30?.find('.day-count').text()).toBe('18 св.')
 
     await sept30?.trigger('click')
 
     expect(wrapper.emitted('update:modelValue')).toEqual([['2026-09-30']])
+  })
+
+  it('labels the day count with the given suffix', () => {
+    const wrapper = mountCalendar({ countSuffix: 'зап.' })
+
+    expect(dayInMonth(wrapper, 28)?.find('.day-count').text()).toBe('18 зап.')
   })
 })

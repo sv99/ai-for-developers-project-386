@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const importApi = async () => {
   const eventTypes = await import('../eventTypes')
@@ -159,5 +159,63 @@ describe('bookings API', () => {
     expect(() =>
       api.createBooking({ eventTypeId: type.id, date: '', startTime: '10:00', contact }),
     ).toThrow()
+  })
+})
+
+describe('upcoming bookings API', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-03-28T12:15:00'))
+    localStorage.clear()
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  const book = (api: Api, type: { id: string }, date: string, startTime: string) =>
+    api.createBooking({ eventTypeId: type.id, date, startTime, contact })
+
+  it('lists only the future active bookings, earliest first', async () => {
+    const api = await importApi()
+    const type = createType(api, 30)
+
+    book(api, type, '2026-03-30', '10:00')
+    book(api, type, '2026-03-29', '15:00')
+    book(api, type, '2026-03-28', '17:00')
+
+    expect(api.listUpcomingBookings().map((item) => `${item.date} ${item.startTime}`)).toEqual([
+      '2026-03-28 17:00',
+      '2026-03-29 15:00',
+      '2026-03-30 10:00',
+    ])
+  })
+
+  it('leaves out the bookings that already started', async () => {
+    const api = await importApi()
+    const type = createType(api, 30)
+
+    book(api, type, '2026-03-28', '09:00')
+    book(api, type, '2026-03-27', '16:00')
+
+    expect(api.listUpcomingBookings()).toEqual([])
+  })
+
+  it('leaves out the cancelled bookings', async () => {
+    const api = await importApi()
+    const type = createType(api, 30)
+
+    book(api, type, '2026-03-29', '10:00')
+
+    const stored = JSON.parse(localStorage.getItem('calendar-bookings') ?? '[]')
+    localStorage.setItem(
+      'calendar-bookings',
+      JSON.stringify(
+        stored.map((booking: { status: string }) => ({ ...booking, status: 'cancelled' })),
+      ),
+    )
+
+    expect(api.listUpcomingBookings()).toEqual([])
   })
 })
