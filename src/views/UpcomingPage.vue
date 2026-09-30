@@ -113,7 +113,7 @@ const cancel = () => {
           <div class="card-head">
             <h2 class="card-title">Информация о записи</h2>
 
-            <el-tooltip content="Удалить запись" :show-after="200">
+            <el-tooltip v-if="selectedBooking" content="Удалить запись" :show-after="200">
               <el-popconfirm
                 title="Отменить эту Запись?"
                 confirm-button-text="Да, отменить"
@@ -123,13 +123,7 @@ const cancel = () => {
                 @confirm="cancel"
               >
                 <template #reference>
-                  <el-button
-                    class="remove-button"
-                    text
-                    circle
-                    aria-label="Удалить запись"
-                    :disabled="!selectedBooking"
-                  >
+                  <el-button class="remove-button" text circle aria-label="Удалить запись">
                     <el-icon><Delete /></el-icon>
                   </el-button>
                 </template>
