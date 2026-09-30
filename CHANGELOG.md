@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.1.0...v1.1.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* LandingPage удаление полос прокрутки сверху и сбоку ([bf038b0](https://github.com/sv99/ai-for-developers-project-386/commit/bf038b0f6f4ea72b9b1928d320e9d3d448074d1f))
+
 ## [1.1.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.0.2...v1.1.0) (2026-09-29)
 
 
