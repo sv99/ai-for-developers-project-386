@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.2.0...v1.3.0) (2026-09-30)
+
+
+### Features
+
+* страница записи по образцу — календарь, статус слотов и правила доступности ([#31](https://github.com/sv99/ai-for-developers-project-386/issues/31)) ([14e8bcb](https://github.com/sv99/ai-for-developers-project-386/commit/14e8bcb6582a8cd6ecc5218c0f63b187ce24f722))
+
+
+### Bug Fixes
+
+* выделять текущую дату в календаре жирным текстом ([#33](https://github.com/sv99/ai-for-developers-project-386/issues/33)) ([6720181](https://github.com/sv99/ai-for-developers-project-386/commit/6720181b57a70ab4d8033717dfa685ba45a7b34a))
+
 ## [1.2.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.1.1...v1.2.0) (2026-09-30)
 
 
