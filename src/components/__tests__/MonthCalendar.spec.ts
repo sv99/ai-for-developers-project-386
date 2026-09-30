@@ -156,4 +156,22 @@ describe('MonthCalendar', () => {
 
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
+
+  it('keeps the days of the booking window active in the neighbouring month', async () => {
+    // Сегодня 30 сентября, окно открыто до 14 октября: сентябрьский хвост ещё доступен.
+    const wrapper = mountCalendar({ today: '2026-09-30' })
+
+    await wrapper.findAll('.nav-button')[1]?.trigger('click')
+    expect(wrapper.find('.calendar-month').text()).toBe('октябрь 2026 г.')
+
+    const sept30 = wrapper.findAll('.day').find((cell) => cell.find('.day-number').text() === '30')
+
+    // День из окна регистрации не приглушается, даже если он из соседнего месяца.
+    expect(sept30?.classes()).not.toContain('day--muted')
+    expect(sept30?.find('.day-free').text()).toBe('18 св.')
+
+    await sept30?.trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')).toEqual([['2026-09-30']])
+  })
 })

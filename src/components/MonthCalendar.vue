@@ -292,10 +292,8 @@ const pick = (cell: DayCell) => {
   color: var(--el-text-color-secondary);
 }
 
-.day--outside .day-number {
-  color: var(--el-text-color-secondary);
-}
-
+/* Дни соседних месяцев не приглушаем отдельно: серыми остаются только дни вне окна
+   регистрации и дни без свободных Слотов — это задаёт .day--muted. */
 .day--muted .day-number,
 .day--muted .day-free {
   color: var(--el-text-color-disabled);
