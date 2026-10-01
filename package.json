@@ -15,7 +15,8 @@
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "oxfmt src/",
-    "tsp:check": "tsp compile typespec/main.tsp --no-emit"
+    "tsp:check": "tsp compile typespec/main.tsp --no-emit",
+    "deploy:render": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
