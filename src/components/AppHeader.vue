@@ -7,29 +7,35 @@ const router = useRouter()
 
 <template>
   <el-header class="app-header">
-    <RouterLink class="brand" to="/">
-      <el-icon class="brand-icon" :size="28" color="var(--el-color-primary)">
-        <Calendar />
-      </el-icon>
-      <span class="brand-name">Calendar</span>
-    </RouterLink>
-    <el-space :size="24" spacer-class="nav-links">
-      <el-link underline="never" @click="router.push('/events')">Записаться</el-link>
-      <el-link underline="never" @click="router.push('/upcoming')">Предстоящие события</el-link>
-      <el-link underline="never" @click="router.push('/admin')">Настройки</el-link>
-    </el-space>
+    <div class="app-container app-header__inner">
+      <RouterLink class="brand" to="/">
+        <el-icon class="brand-icon" :size="28" color="var(--el-color-primary)">
+          <Calendar />
+        </el-icon>
+        <span class="brand-name">Calendar</span>
+      </RouterLink>
+      <el-space :size="24" spacer-class="nav-links">
+        <el-link underline="never" @click="router.push('/events')">Записаться</el-link>
+        <el-link underline="never" @click="router.push('/upcoming')">Предстоящие события</el-link>
+        <el-link underline="never" @click="router.push('/admin')">Настройки</el-link>
+      </el-space>
+    </div>
   </el-header>
 </template>
 
 <style scoped>
 .app-header {
+  height: var(--app-header-height);
+  padding: 0 var(--app-gutter);
+  background-color: var(--el-fill-color-lighter);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.app-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
-  padding: 0 40px;
-  background-color: var(--el-fill-color-lighter);
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  height: 100%;
 }
 
 .brand {

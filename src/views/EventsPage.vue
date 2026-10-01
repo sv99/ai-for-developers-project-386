@@ -19,7 +19,7 @@ const choose = (eventType: EventType) => {
 
 <template>
   <el-main class="page">
-    <div class="content">
+    <div class="app-container">
       <section class="host-card">
         <div class="host">
           <span class="host-avatar">
@@ -58,14 +58,9 @@ const choose = (eventType: EventType) => {
 
 <style scoped>
 .page {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - var(--app-header-height));
   padding: 48px 24px;
   background-color: var(--el-fill-color-light);
-}
-
-.content {
-  max-width: 1000px;
-  margin: 0 auto;
 }
 
 .host-card {

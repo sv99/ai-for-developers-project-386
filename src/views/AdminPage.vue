@@ -75,68 +75,70 @@ const onAddType = async () => {
 
 <template>
   <el-main class="page">
-    <h1 class="page-title">Настройки</h1>
+    <div class="app-container">
+      <h1 class="page-title">Настройки</h1>
 
-    <el-card class="card" shadow="never">
-      <template #header>
-        <span class="card-title">Календарь</span>
-      </template>
-      <el-form
-        ref="nameRef"
-        class="form form--calendar"
-        :model="nameForm"
-        :rules="nameRules"
-        label-position="top"
-        @submit.prevent="onSaveName"
-      >
-        <el-form-item label="Имя календаря" prop="calendarName">
-          <el-input v-model="nameForm.calendarName" placeholder="Имя календаря" />
-        </el-form-item>
-        <p v-if="nameError" class="form-error" role="alert">{{ nameError }}</p>
-        <p v-if="nameSaved" class="form-success" role="status">Имя календаря сохранено.</p>
-        <el-button native-type="submit" type="primary">Сохранить</el-button>
-      </el-form>
-    </el-card>
+      <el-card class="card" shadow="never">
+        <template #header>
+          <span class="card-title">Календарь</span>
+        </template>
+        <el-form
+          ref="nameRef"
+          class="form form--calendar"
+          :model="nameForm"
+          :rules="nameRules"
+          label-position="top"
+          @submit.prevent="onSaveName"
+        >
+          <el-form-item label="Имя календаря" prop="calendarName">
+            <el-input v-model="nameForm.calendarName" placeholder="Имя календаря" />
+          </el-form-item>
+          <p v-if="nameError" class="form-error" role="alert">{{ nameError }}</p>
+          <p v-if="nameSaved" class="form-success" role="status">Имя календаря сохранено.</p>
+          <el-button native-type="submit" type="primary">Сохранить</el-button>
+        </el-form>
+      </el-card>
 
-    <el-card class="card" shadow="never">
-      <template #header>
-        <span class="card-title">Типы событий</span>
-      </template>
+      <el-card class="card" shadow="never">
+        <template #header>
+          <span class="card-title">Типы событий</span>
+        </template>
 
-      <p v-if="eventTypes.length === 0" class="empty">Пока нет ни одного типа событий.</p>
-      <ul v-else class="type-list">
-        <li v-for="eventType in eventTypes" :key="eventType.id">
-          <EventTypeCard :event-type="eventType" />
-        </li>
-      </ul>
+        <p v-if="eventTypes.length === 0" class="empty">Пока нет ни одного типа событий.</p>
+        <ul v-else class="type-list">
+          <li v-for="eventType in eventTypes" :key="eventType.id">
+            <EventTypeCard :event-type="eventType" />
+          </li>
+        </ul>
 
-      <el-form
-        ref="typeRef"
-        class="form form--types"
-        :model="typeForm"
-        :rules="typeRules"
-        label-position="top"
-        @submit.prevent="onAddType"
-      >
-        <el-form-item label="Название" prop="name">
-          <el-input v-model="typeForm.name" placeholder="Название" />
-        </el-form-item>
-        <el-form-item label="Описание" prop="description">
-          <el-input v-model="typeForm.description" placeholder="Описание" />
-        </el-form-item>
-        <el-form-item label="Длительность (минуты)" prop="durationMinutes">
-          <el-input-number v-model="typeForm.durationMinutes" :min="1" :precision="0" />
-        </el-form-item>
-        <p v-if="typeError" class="form-error" role="alert">{{ typeError }}</p>
-        <el-button native-type="submit" type="primary">Добавить тип</el-button>
-      </el-form>
-    </el-card>
+        <el-form
+          ref="typeRef"
+          class="form form--types"
+          :model="typeForm"
+          :rules="typeRules"
+          label-position="top"
+          @submit.prevent="onAddType"
+        >
+          <el-form-item label="Название" prop="name">
+            <el-input v-model="typeForm.name" placeholder="Название" />
+          </el-form-item>
+          <el-form-item label="Описание" prop="description">
+            <el-input v-model="typeForm.description" placeholder="Описание" />
+          </el-form-item>
+          <el-form-item label="Длительность (минуты)" prop="durationMinutes">
+            <el-input-number v-model="typeForm.durationMinutes" :min="1" :precision="0" />
+          </el-form-item>
+          <p v-if="typeError" class="form-error" role="alert">{{ typeError }}</p>
+          <el-button native-type="submit" type="primary">Добавить тип</el-button>
+        </el-form>
+      </el-card>
+    </div>
   </el-main>
 </template>
 
 <style scoped>
 .page {
-  padding: 40px;
+  padding: 40px var(--app-gutter);
 }
 
 .page-title {
