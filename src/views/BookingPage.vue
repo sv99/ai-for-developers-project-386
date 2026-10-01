@@ -157,7 +157,7 @@ const bookAgain = () => {
 
 <template>
   <el-main class="page">
-    <div class="content">
+    <div class="app-container">
       <h1 class="page-title">Запись на звонок</h1>
 
       <p v-if="!eventType" class="page-empty">
@@ -297,14 +297,9 @@ const bookAgain = () => {
 
 <style scoped>
 .page {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - var(--app-header-height));
   padding: 40px 24px;
   background-color: var(--el-fill-color-light);
-}
-
-.content {
-  max-width: 1120px;
-  margin: 0 auto;
 }
 
 .page-title {

@@ -56,7 +56,7 @@ const headers = {
 async function api(path, init = {}) {
   const response = await fetch(`${API}${path}`, {
     ...init,
-    headers: { ...headers, ...(init.headers ?? {}) },
+    headers: { ...headers, ...init.headers },
   })
 
   const text = await response.text()

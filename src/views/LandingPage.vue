@@ -13,46 +13,52 @@ const features = [
 
 <template>
   <el-main class="landing-main">
-    <el-row :gutter="40" align="middle" class="hero">
-      <el-col :xs="24" :md="12">
-        <el-tag class="hero-tag" round>Быстрая запись на звонок</el-tag>
-        <h1 class="hero-title">Calendar</h1>
-        <p class="hero-text">
-          Один экран, понятные слоты, быстрая бронь. Выберите время и запишитесь на звонок без
-          лишних шагов.
-        </p>
-        <el-button class="hero-button" size="large" round @click="router.push('/events')">
-          Записаться
-          <el-icon class="hero-button-icon"><ArrowRight /></el-icon>
-        </el-button>
-      </el-col>
-      <el-col :xs="24" :md="12">
-        <el-card class="features-card" shadow="never">
-          <template #header>
-            <span class="features-title">Что доступно прямо сейчас</span>
-          </template>
-          <ul class="features-list">
-            <li v-for="feature in features" :key="feature" class="features-item">
-              {{ feature }}
-            </li>
-          </ul>
-        </el-card>
-      </el-col>
-    </el-row>
+    <div class="hero app-container">
+      <el-row :gutter="40" align="middle" class="hero-row">
+        <el-col :xs="24" :md="12">
+          <el-tag class="hero-tag" round>Быстрая запись на звонок</el-tag>
+          <h1 class="hero-title">Calendar</h1>
+          <p class="hero-text">
+            Один экран, понятные слоты, быстрая бронь. Выберите время и запишитесь на звонок без
+            лишних шагов.
+          </p>
+          <el-button class="hero-button" size="large" round @click="router.push('/events')">
+            Записаться
+            <el-icon class="hero-button-icon"><ArrowRight /></el-icon>
+          </el-button>
+        </el-col>
+        <el-col :xs="24" :md="12">
+          <el-card class="features-card" shadow="never">
+            <template #header>
+              <span class="features-title">Что доступно прямо сейчас</span>
+            </template>
+            <ul class="features-list">
+              <li v-for="feature in features" :key="feature" class="features-item">
+                {{ feature }}
+              </li>
+            </ul>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
   </el-main>
 </template>
 
 <style scoped>
 .landing-main {
-  padding: 0;
-  height: calc(100vh - 64px);
+  padding: 0 var(--app-gutter);
+  height: calc(100vh - var(--app-header-height));
   overflow: hidden;
   background: linear-gradient(to right, #e8f2fb 0%, #f7f7f8 55%, #fdf0e8 100%);
 }
 
 .hero {
   height: 100%;
-  padding: 40px;
+  padding-block: 40px;
+}
+
+.hero-row {
+  height: 100%;
 }
 
 .hero-tag {
@@ -132,13 +138,13 @@ const features = [
 @media (max-width: 991px) {
   .landing-main {
     height: auto;
-    min-height: calc(100vh - 64px);
+    min-height: calc(100vh - var(--app-header-height));
   }
 
   .hero {
     height: auto;
-    min-height: calc(100vh - 64px);
-    padding: 24px;
+    min-height: calc(100vh - var(--app-header-height));
+    padding-block: 24px;
   }
 
   .hero-title {
