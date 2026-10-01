@@ -10,6 +10,7 @@
 - `pnpm lint` — сначала `lint:oxlint`, затем `lint:eslint` (последовательно, оба с `--fix`)
 - `pnpm format` — `oxfmt src/` (только `src/`, не весь репозиторий)
 - `pnpm build` — параллельно type-check + `vite build`
+- `pnpm tsp:check` — компиляция доменной модели TypeSpec (`typespec/main.tsp`) без эмита
 
 ## Локальное окружение и проверка UI (WSL)
 
@@ -42,6 +43,12 @@
 - Пуш в main запускает `release-please.yml` — по **Conventional Commits** (`feat:`, `fix:` …) создаёт release-PR и тег `v*.*.*`.
 - Версию в `package.json` поднимает release-please — **не бампай вручную**. `release.yml` сверяет версию пакета с тегом и заливает `dist-<tag>.zip` в GitHub Release.
 - Для release-please нужен секрет `RELEASE_PLEASE_TOKEN` (fine-grained PAT): релиз/тег от обычного `GITHUB_TOKEN` не запустит `release.yml`.
+
+## TypeSpec
+
+- `typespec/main.tsp` — доменная модель API-слоя (сущности, ограничения, операции `src/api`). Это **не** HTTP-контракт: сервис клиентский, эндпоинтов нет. Проверка — `pnpm tsp:check`.
+- `typespec/http.tsp` — справочный прототип HTTP-контракта (задел на будущий сервер). В обычные зависимости `@typespec/http` и эмиттеры не входят; файл компилируется только после временной установки (`pnpm add -D @typespec/http @typespec/openapi3 @typespec/http-client-js`). Подробности — `typespec/README.md`.
+- Не коммить артефакты генерации (`tsp-output/`).
 
 ## Agent skills
 

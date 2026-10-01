@@ -19,4 +19,32 @@
 pnpm tsp:check
 ```
 
-Компилятор `@typespec/compiler` стоит в `devDependencies`; внешних библиотек сама модель не требует. Для проверки схемой OpenAPI нужен `@typespec/openapi3` — здесь он не подключён: HTTP в проекте нет, эмиттер дал бы пустой список путей и предупреждение «no service found».
+Компилятор `@typespec/compiler` стоит в `devDependencies`; внешних библиотек сама модель не требует.
+
+## Генерация OpenAPI и SDK из `main.tsp` — почему не работает
+
+Проверено на `@typespec/openapi3` и `@typespec/http-client-js` (TypeSpec 1.16.0): **из `main.tsp` осмысленных OpenAPI/SDK не получить**, потому что это модель данных, а не HTTP-контракт. Эмиттеры строят вывод от HTTP-поверхности, а в `main.tsp` нет ни `@service`, ни `@route`, ни `@get`/`@post` — операции заданы сигнатурами.
+
+Что получается на практике:
+
+- `@typespec/openapi3` отрабатывает «успешно», но выдаёт одну схему (`TimeRange`) и `paths: {}` — остальные модели недостижимы из HTTP-операций. Плюс предупреждение `no-service-found`.
+- `@typespec/json-schema` не создаёт вообще ничего: схемы не форсируются, если на них не ссылается HTTP-сторона.
+- `@typespec/http-client-js` формально генерирует клиент со всеми моделями, но **выдумывает маршруты**: `listBookings` бьёт в `GET /` — эндпоинтов, которых нет. Такой SDK нерабочий и опасен: он выглядит настоящим.
+
+Это следствие природы проекта: по `docs/spec.md` сервис клиентский, `src/api` пишет в `localStorage`, сервера и эндпоинтов в v1 нет. Описывать сетевой интерфейс нечего.
+
+## Прототип HTTP-контракта: `http.tsp`
+
+`typespec/http.tsp` — **справочный прототип**, задел на будущий сервер. Он импортирует `main.tsp`, переиспользует модели и навешивает на те же операции HTTP-поверхность: `@service`, `@server`, `@route`, `@get`/`@post`/`@put`, `@path`/`@query`/`@body`, `@statusCode` и коды ошибок (`ValidationError` → 400, `NotFoundError` → 404, `ConflictError` → 409).
+
+С добавленной HTTP-поверхностью эмиттеры дают то, что нужно: полноценный OpenAPI со всеми 11 путями и схемами, а SDK-эмиттер — клиент с настоящими маршрутами (`GET /bookings`, `POST /bookings/{id}/cancel` …) вместо фиктивного `GET /`.
+
+Файл **не компилируется обычными зависимостями проекта**: `@typespec/http` и эмиттеры в него не входят (сервера нет — незачем). Чтобы прогнать прототип, установите их временно:
+
+```bash
+pnpm add -D @typespec/http @typespec/openapi3 @typespec/http-client-js
+pnpm exec tsp compile typespec/http.tsp --emit @typespec/openapi3
+pnpm exec tsp compile typespec/http.tsp --emit @typespec/http-client-js
+```
+
+Артефакты появятся в `tsp-output/`; коммитить их не нужно, а зависимости после эксперимента стоит убрать. `pnpm tsp:check` по-прежнему проверяет только `main.tsp` и внешних библиотек не требует.
