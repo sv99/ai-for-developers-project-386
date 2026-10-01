@@ -17,7 +17,14 @@
 
 - `pnpm` здесь — **windows-версия** (`/mnt/c/nvm4w/nodejs/pnpm`): `pnpm dev`/`pnpm preview` поднимают сервер на стороне Windows, а `node_modules` содержит win32-бинарники. Linux-нодой Vite не запускается (`Cannot find native binding`) — это норма окружения, переустанавливать не нужно.
 - Поэтому `dev` и `preview` слушают `0.0.0.0`: из WSL сервер доступен по адресу Windows-хоста, а не по `localhost`. Нужный адрес — строка `Network` с пометкой `vEthernet (WSL)` в выводе `pnpm dev` (это `.1` подсети `eth0`).
-- UI проверяется MCP-сервером `playwright` (headless Chromium, настроен в `~/.config/opencode/opencode.json`): `browser_navigate` → `browser_snapshot` → `browser_take_screenshot`. Артефакты — в `.playwright-mcp/`.
+- UI проверяется MCP-сервером `playwright` (headless Chromium, настроен в `opencode.json` этого проекта): `browser_navigate` → `browser_snapshot` → `browser_take_screenshot`. Артефакты — в `.playwright-mcp/`.
+
+## MCP-серверы
+
+`opencode.json` (в корне, **коммитится**) описывает два MCP-сервера:
+
+- `playwright` — локальный, только для этого проекта;
+- `render` — remote (`https://mcp.render.com/mcp`), ключ подставляется из `.secrets/render-api-key` через `{file:…}`. Сам файл секрета в `.secrets/` и **не коммитится** — на новой машине создай его (`printf '%s' rnd_… > .secrets/render-api-key`), иначе Render MCP вернёт `unauthorized`. Тот же ключ читает `scripts/deploy.mjs` из `RENDER_API_KEY`.
 
 ## Стиль кода
 

@@ -40,7 +40,9 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
-opencode.json
+
+# Local secrets (API keys for MCP/scripts)
+.secrets/
 
 # TypeSpec
 tsp-output/
