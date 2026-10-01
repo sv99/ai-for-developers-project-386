@@ -39,12 +39,15 @@ pnpm tsp:check
 
 С добавленной HTTP-поверхностью эмиттеры дают то, что нужно: полноценный OpenAPI со всеми 11 путями и схемами, а SDK-эмиттер — клиент с настоящими маршрутами (`GET /bookings`, `POST /bookings/{id}/cancel` …) вместо фиктивного `GET /`.
 
-Файл **не компилируется обычными зависимостями проекта**: `@typespec/http` и эмиттеры в него не входят (сервера нет — незачем). Чтобы прогнать прототип, установите их временно:
+`@typespec/http` и `@typespec/openapi3` стоят в `devDependencies`, поэтому `http.tsp` компилируется штатно. SDK-эмиттер (`@typespec/http-client-js`) в зависимости не добавлен — он нужен только для разовой демонстрации.
+
+## Генерация OpenAPI
 
 ```bash
-pnpm add -D @typespec/http @typespec/openapi3 @typespec/http-client-js
-pnpm exec tsp compile typespec/http.tsp --emit @typespec/openapi3
-pnpm exec tsp compile typespec/http.tsp --emit @typespec/http-client-js
+pnpm openapi        # собрать docs/openapi.yaml из typespec/http.tsp
+pnpm openapi:check  # проверить, что docs/openapi.yaml актуален (для CI)
 ```
 
-Артефакты появятся в `tsp-output/`; коммитить их не нужно, а зависимости после эксперимента стоит убрать. `pnpm tsp:check` по-прежнему проверяет только `main.tsp` и внешних библиотек не требует.
+Скрипт `scripts/generate-openapi.mjs` компилирует `typespec/http.tsp` эмиттером `@typespec/openapi3`, кладёт результат в `docs/openapi.yaml` и убирает временную папку `tsp-output/` (она в `.gitignore`). Флаги: `--out <dir>`, `--name <file>`, `--check`.
+
+Почему скрипт, а не голый `tsp compile`: путь и имя файла фиксированы в репозитории (`docs/openapi.yaml`), вывод воспроизводим, а `pnpm openapi:check` ловит расхождение контракта с кодом.

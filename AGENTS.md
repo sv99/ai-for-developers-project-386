@@ -11,6 +11,7 @@
 - `pnpm format` — `oxfmt src/` (только `src/`, не весь репозиторий)
 - `pnpm build` — параллельно type-check + `vite build`
 - `pnpm tsp:check` — компиляция доменной модели TypeSpec (`typespec/main.tsp`) без эмита
+- `pnpm openapi` — генерация `docs/openapi.yaml` из `typespec/http.tsp`; `pnpm openapi:check` — проверка актуальности (для CI)
 
 ## Локальное окружение и проверка UI (WSL)
 
@@ -47,8 +48,8 @@
 ## TypeSpec
 
 - `typespec/main.tsp` — доменная модель API-слоя (сущности, ограничения, операции `src/api`). Это **не** HTTP-контракт: сервис клиентский, эндпоинтов нет. Проверка — `pnpm tsp:check`.
-- `typespec/http.tsp` — справочный прототип HTTP-контракта (задел на будущий сервер). В обычные зависимости `@typespec/http` и эмиттеры не входят; файл компилируется только после временной установки (`pnpm add -D @typespec/http @typespec/openapi3 @typespec/http-client-js`). Подробности — `typespec/README.md`.
-- Не коммить артефакты генерации (`tsp-output/`).
+- `typespec/http.tsp` — справочный прототип HTTP-контракта (задел на будущий сервер). `@typespec/http` и `@typespec/openapi3` стоят в `devDependencies`. Подробности — `typespec/README.md`.
+- `docs/openapi.yaml` — сгенерированный контракт, **коммитится**. Не редактируй руками: пересобирай `pnpm openapi`. `tsp-output/` — временная папка эмиттера, в `.gitignore`.
 
 ## Agent skills
 
