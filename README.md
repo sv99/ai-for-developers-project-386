@@ -81,7 +81,7 @@ npx skills@latest add mattpocock/skills
 
 ## Deploy в Render
 
-Установка MCP и подключение к [render.com/](https://render.com/).
+Установка MCP и деплой приложения [calendar-slot](https://calendar-slot.onrender.com/).
 
 После того, как сделал DockerFile начали штатно отрабатываться проверки от hexlet_check.
 

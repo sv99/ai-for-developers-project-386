@@ -10,6 +10,8 @@
 - `pnpm lint` — сначала `lint:oxlint`, затем `lint:eslint` (последовательно, оба с `--fix`)
 - `pnpm format` — `oxfmt src/` (только `src/`, не весь репозиторий)
 - `pnpm build` — параллельно type-check + `vite build`
+- `pnpm tsp:check` — компиляция доменной модели TypeSpec (`typespec/main.tsp`) без эмита
+- `pnpm openapi` — генерация `docs/openapi.yaml` из `typespec/http.tsp`; `pnpm openapi:check` — проверка актуальности (для CI)
 
 ## Локальное окружение и проверка UI (WSL)
 
@@ -42,6 +44,12 @@
 - Пуш в main запускает `release-please.yml` — по **Conventional Commits** (`feat:`, `fix:` …) создаёт release-PR и тег `v*.*.*`.
 - Версию в `package.json` поднимает release-please — **не бампай вручную**. `release.yml` сверяет версию пакета с тегом и заливает `dist-<tag>.zip` в GitHub Release.
 - Для release-please нужен секрет `RELEASE_PLEASE_TOKEN` (fine-grained PAT): релиз/тег от обычного `GITHUB_TOKEN` не запустит `release.yml`.
+
+## TypeSpec
+
+- `typespec/main.tsp` — доменная модель API-слоя (сущности, ограничения, операции `src/api`). Это **не** HTTP-контракт: сервис клиентский, эндпоинтов нет. Проверка — `pnpm tsp:check`.
+- `typespec/http.tsp` — справочный прототип HTTP-контракта (задел на будущий сервер). `@typespec/http` и `@typespec/openapi3` стоят в `devDependencies`. Подробности — `typespec/README.md`.
+- `docs/openapi.yaml` — сгенерированный контракт, **коммитится**. Не редактируй руками: пересобирай `pnpm openapi`. `tsp-output/` — временная папка эмиттера, в `.gitignore`.
 
 ## Agent skills
 
