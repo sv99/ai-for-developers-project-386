@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.5.1...v1.6.0) (2026-10-01)
+
+
+### Features
+
+* Docker-образ и скрипт деплоя на Render ([#53](https://github.com/sv99/ai-for-developers-project-386/issues/53)) ([8884505](https://github.com/sv99/ai-for-developers-project-386/commit/88845050f4c4e39c6a870d12c0050b80ed12e821))
+
 ## [1.5.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.5.0...v1.5.1) (2026-09-30)
 
 
