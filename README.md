@@ -78,3 +78,20 @@ npx skills@latest add mattpocock/skills
 
 Спецификация сгенерировал по уже готовому API слою.
 К его качеству есть вопросы. Пока не понятно как это должно (желательно) работать.
+
+## Deploy в Render
+
+Установка MCP и подключение к [render.com/](https://render.com/).
+
+После того, как сделал DockerFile начали штатно отрабатываться проверки от hexlet_check.
+
+Используемые конфигурационные файлы:
+
+```bash
+# исключен в .gitignore, содержит ключ для деплоя
+opencode.json
+Dockerfile
+nginx.conf.template
+# используется для настройки сервиса в Render
+render.yaml
+```
