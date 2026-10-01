@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.6.0...v1.7.0) (2026-10-01)
+
+
+### Features
+
+* прототип HTTP-контракта TypeSpec и выводы по OpenAPI/SDK ([#56](https://github.com/sv99/ai-for-developers-project-386/issues/56)) ([941c1c7](https://github.com/sv99/ai-for-developers-project-386/commit/941c1c745577c8e29b151954bc057904a8c99321))
+
 ## [1.6.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.5.1...v1.6.0) (2026-10-01)
 
 
