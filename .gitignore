@@ -46,3 +46,6 @@ __screenshots__/
 
 # TypeSpec
 tsp-output/
+
+# Claude Code (локальные симлинки на .agents/skills)
+.claude/

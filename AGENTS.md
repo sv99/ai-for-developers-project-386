@@ -70,4 +70,4 @@ Issues живут в GitHub Issues репозитория, все операци
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` и `docs/adr/` в корне репозитория. См. `docs/agents/domain.md`.
+Single-context: `GLOSSARY.md` и `docs/adr/` в корне репозитория. См. `docs/agents/domain.md`.

@@ -42,7 +42,10 @@ cd ai-for-developers-project-386
 1. Установите набор скиллов:
 
 ```bash
+# Install
 npx skills@latest add mattpocock/skills
+# Update
+pnpx skills update
 ```
 
 1. Проверьте, что агент видит скиллы: они должны появиться в списке доступных.
@@ -52,7 +55,7 @@ npx skills@latest add mattpocock/skills
 
 - трекер задач: GitHub Issues в репозитории проекта;
 - метки для разбора задач: оставить значения по умолчанию;
-- документы предметной области: один контекст, CONTEXT.md и docs/adr/ в корне репозитория
+- документы предметной области: один контекст, GLOSSARY.md и docs/adr/ в корне репозитория
 
 1. Посмотрите, что скилл записал в docs/agents/ и в AGENTS.md.
 

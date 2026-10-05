@@ -11,7 +11,7 @@
 - ошибки `ApiError`, `NotFoundError`, `ValidationError`, `ConflictError` — с текстами из кода;
 - операции API-слоя: `listBookings`, `listUpcomingBookings`, `createBooking`, `cancelBooking`, `listDaySlots`, `countFreeSlots`, `bookingWindowEnd`, `listEventTypes`, `createEventType`, `getCalendarName`, `setCalendarName`.
 
-В описаниях зафиксированы доменные правила: 30-минутная сетка 09:00–18:00, окно регистрации 14 дней, значение «занято» (занято активной Записью, время прошло или день вне окна), сохранение тела Записи при отмене. Термины — по `CONTEXT.md`.
+В описаниях зафиксированы доменные правила: 30-минутная сетка 09:00–18:00, окно регистрации 14 дней, значение «занято» (занято активной Записью, время прошло или день вне окна), сохранение тела Записи при отмене. Термины — по `GLOSSARY.md`.
 
 ## Проверка
 
