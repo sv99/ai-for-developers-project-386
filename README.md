@@ -42,7 +42,10 @@ cd ai-for-developers-project-386
 1. Установите набор скиллов:
 
 ```bash
+# Install
 npx skills@latest add mattpocock/skills
+# Update
+pnpx skills update
 ```
 
 1. Проверьте, что агент видит скиллы: они должны появиться в списке доступных.
