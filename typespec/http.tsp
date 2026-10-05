@@ -13,7 +13,7 @@
  *   pnpm exec tsp compile typespec/http.tsp --emit @typespec/http-client-js
  *
  * Модели и операции переиспользуются из `main.tsp`; здесь они только получают маршруты, методы
- * и коды ответов. Домен — по CONTEXT.md: Запись, Слот, Тип события.
+ * и коды ответов. Домен — по GLOSSARY.md: Запись, Слот, Тип события.
  */
 import "@typespec/http";
 import "./main.tsp";
