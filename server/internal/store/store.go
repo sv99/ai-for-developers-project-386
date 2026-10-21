@@ -33,7 +33,7 @@ func Migrate(ctx context.Context, url string) error {
 		return fmt.Errorf("parse DATABASE_URL: %w", err)
 	}
 	sqldb := stdlib.OpenDB(*cfg)
-	defer sqldb.Close()
+	defer func() { _ = sqldb.Close() }() // ошибки Close на этапе миграций незначимы
 
 	goose.SetBaseFS(migrationsFS)
 	if err := goose.SetDialect("postgres"); err != nil {
