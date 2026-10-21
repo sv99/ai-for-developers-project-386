@@ -7,7 +7,7 @@ on:
 
 jobs:
   frontend:
-    name: Frontend: test, build, smoke
+    name: 'Frontend: test, build, smoke'
     runs-on: ubuntu-latest
 
     steps:
@@ -51,7 +51,7 @@ jobs:
           exit 1
 
   server:
-    name: Server: lint, vet, test, build
+    name: 'Server: lint, vet, test, build'
     runs-on: ubuntu-latest
     defaults:
       run:
