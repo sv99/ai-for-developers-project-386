@@ -95,6 +95,9 @@ const cancel = async () => {
             highlight-full
             @update:model-value="pickDate"
           />
+          <!-- Календарь журнала — фильтр по существующим Записям: день активен, только
+               если в нём есть Записи. Подсказка снимает вопрос «почему дни серые». -->
+          <p class="calendar-hint">Активен только день с Записями — серые дни пусты.</p>
         </section>
 
         <section class="card">
@@ -247,6 +250,14 @@ const cancel = async () => {
   padding: 12px 16px;
   border-radius: 8px;
   background-color: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
+}
+
+/* Подсказка о семантике календаря журнала: серые дни — без Записей. */
+.calendar-hint {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--el-text-color-secondary);
 }
 

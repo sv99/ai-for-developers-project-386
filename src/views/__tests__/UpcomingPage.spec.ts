@@ -97,6 +97,14 @@ describe('UpcomingPage', () => {
     vi.useRealTimers()
   })
 
+  it('hints that only days with bookings are selectable', async () => {
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('.calendar-hint').text()).toBe(
+      'Активен только день с Записями — серые дни пусты.',
+    )
+  })
+
   it('shows the journal placeholder when nothing is booked yet', async () => {
     const wrapper = await mountPage()
 
