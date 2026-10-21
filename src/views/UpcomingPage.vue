@@ -1,21 +1,37 @@
 <script setup lang="ts">
 import { Delete } from '@element-plus/icons-vue'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { cancelBooking, listUpcomingBookings } from '@/api/bookings'
 import { listEventTypes } from '@/api/eventTypes'
 import { bookingRange, SLOT_MINUTES, toTime } from '@/api/slots'
-import type { Booking } from '@/api/types'
+import type { Booking, EventType } from '@/api/types'
 import MonthCalendar from '@/components/MonthCalendar.vue'
 import { formatDate, formatDayLabel } from '@/utils/dates'
 
-const bookings = ref<Booking[]>(listUpcomingBookings())
-const typesById = new Map(listEventTypes().map((type) => [type.id, type]))
+const bookings = ref<Booking[]>([])
+const eventTypes = ref<EventType[]>([])
+const loading = ref(true)
+const loadError = ref('')
 
-const typeName = (id: string) => typesById.get(id)?.name ?? 'Тип события'
+onMounted(async () => {
+  try {
+    const [upcoming, types] = await Promise.all([listUpcomingBookings(), listEventTypes()])
+    bookings.value = upcoming
+    eventTypes.value = types
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : 'Не удалось загрузить журнал'
+  } finally {
+    loading.value = false
+  }
+})
+
+const typesById = computed(() => new Map(eventTypes.value.map((type) => [type.id, type])))
+
+const typeName = (id: string) => typesById.value.get(id)?.name ?? 'Тип события'
 
 const timeRange = (booking: Booking) => {
-  const duration = typesById.get(booking.eventTypeId)?.durationMinutes ?? SLOT_MINUTES
+  const duration = typesById.value.get(booking.eventTypeId)?.durationMinutes ?? SLOT_MINUTES
   return `${booking.startTime} - ${toTime(bookingRange(booking.startTime, duration).end)}`
 }
 
@@ -52,15 +68,15 @@ const pickBooking = (booking: Booking) => {
   cancelError.value = ''
 }
 
-const cancel = () => {
+const cancel = async () => {
   cancelError.value = ''
   try {
-    cancelBooking(selectedId.value)
+    await cancelBooking(selectedId.value)
   } catch (error) {
     cancelError.value = error instanceof Error ? error.message : 'Не удалось отменить Запись'
     return
   }
-  bookings.value = listUpcomingBookings()
+  bookings.value = await listUpcomingBookings()
   selectedId.value = ''
 }
 </script>
@@ -84,7 +100,9 @@ const cancel = () => {
         <section class="card">
           <h2 class="card-title">Записи дня</h2>
 
-          <p v-if="bookings.length === 0" class="empty">
+          <p v-if="loadError" class="empty" role="alert">{{ loadError }}</p>
+          <p v-else-if="loading" class="empty">Загружаем журнал…</p>
+          <p v-else-if="bookings.length === 0" class="empty">
             Предстоящих Записей пока нет. Как только посетитель запишется, звонок появится здесь.
           </p>
           <p v-else-if="!selectedDate" class="empty">Выберите дату в календаре.</p>

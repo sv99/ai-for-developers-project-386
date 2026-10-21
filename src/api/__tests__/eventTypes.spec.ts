@@ -1,96 +1,56 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const importApi = () => import('../eventTypes')
+import { ApiClientError } from '../client'
+import { createEventType, listEventTypes } from '../eventTypes'
+import { stubFetch } from './fetchStub'
 
-describe('eventTypes API', () => {
-  beforeEach(() => {
-    localStorage.clear()
-    vi.resetModules()
+const eventType = {
+  id: 'et-1',
+  name: 'Встреча 15 минут',
+  description: 'Короткий тип события для быстрого слота.',
+  durationMinutes: 15,
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
+describe('listEventTypes', () => {
+  it('GET /api/event-types and returns the list', async () => {
+    const stub = stubFetch()
+    stub.respondAlways(200, [eventType])
+
+    const types = await listEventTypes()
+
+    expect(types).toEqual([eventType])
+    expect(stub.lastCall().url).toBe('/api/event-types')
+    expect(stub.lastCall().init.method).toBe('GET')
+  })
+})
+
+describe('createEventType', () => {
+  it('POST /api/event-types with the input as JSON', async () => {
+    const stub = stubFetch()
+    stub.respond(201, eventType)
+
+    const input = { name: 'Встреча 15 минут', description: '', durationMinutes: 15 }
+    const created = await createEventType(input)
+
+    expect(created).toEqual(eventType)
+    expect(stub.lastCall().init.method).toBe('POST')
+    expect(JSON.parse(String(stub.lastCall().init.body))).toEqual(input)
   })
 
-  it('creates an event type with a generated id', async () => {
-    const { createEventType: create } = await importApi()
+  it('raises ApiClientError with the contract message on validation errors', async () => {
+    const stub = stubFetch()
+    stub.respondAlways(400, { message: 'Название типа события обязательно' })
 
-    const created = create({
-      name: 'Встреча 15 минут',
-      description: 'Короткий тип события для быстрого слота.',
-      durationMinutes: 15,
-    })
+    const error = await createEventType({ name: '  ', description: '', durationMinutes: 30 }).catch(
+      (caught) => caught,
+    )
 
-    expect(created.id).toBeTruthy()
-    expect(created.name).toBe('Встреча 15 минут')
-    expect(created.description).toBe('Короткий тип события для быстрого слота.')
-    expect(created.durationMinutes).toBe(15)
-  })
-
-  it('starts with an empty list when nothing is stored', async () => {
-    const { listEventTypes: list } = await importApi()
-
-    expect(list()).toEqual([])
-  })
-
-  it('returns created types from the list in creation order', async () => {
-    const { createEventType: create, listEventTypes: list } = await importApi()
-
-    create({ name: 'Встреча 15 минут', description: '', durationMinutes: 15 })
-    create({ name: 'Встреча 30 минут', description: '', durationMinutes: 30 })
-
-    expect(list().map((type) => type.name)).toEqual(['Встреча 15 минут', 'Встреча 30 минут'])
-  })
-
-  it('persists types across reloads', async () => {
-    const first = await importApi()
-    first.createEventType({
-      name: 'Встреча 30 минут',
-      description: 'Базовый тип.',
-      durationMinutes: 30,
-    })
-
-    vi.resetModules()
-    const second = await importApi()
-    const stored = second.listEventTypes()
-
-    expect(stored).toHaveLength(1)
-    expect(stored[0]?.name).toBe('Встреча 30 минут')
-    expect(stored[0]?.durationMinutes).toBe(30)
-  })
-
-  it('rejects an empty name', async () => {
-    const { createEventType: create } = await importApi()
-
-    expect(() => create({ name: '   ', description: '', durationMinutes: 15 })).toThrow()
-  })
-
-  it('rejects a non-positive or fractional duration', async () => {
-    const { createEventType: create } = await importApi()
-
-    expect(() => create({ name: 'Встреча', description: '', durationMinutes: 0 })).toThrow()
-    expect(() => create({ name: 'Встреча', description: '', durationMinutes: -5 })).toThrow()
-    expect(() => create({ name: 'Встреча', description: '', durationMinutes: 12.5 })).toThrow()
-  })
-
-  it('seeds the default event type when nothing is stored', async () => {
-    const { ensureDefaultEventTypes, listEventTypes: list } = await importApi()
-
-    ensureDefaultEventTypes()
-
-    const stored = list()
-    expect(stored).toHaveLength(1)
-    expect(stored[0]?.name).toBe('Встреча 30 минут')
-    expect(stored[0]?.durationMinutes).toBe(30)
-    expect(stored[0]?.id).toBeTruthy()
-  })
-
-  it('keeps existing types when seeding', async () => {
-    const {
-      createEventType: create,
-      ensureDefaultEventTypes,
-      listEventTypes: list,
-    } = await importApi()
-
-    create({ name: 'Свой тип', description: '', durationMinutes: 15 })
-    ensureDefaultEventTypes()
-
-    expect(list().map((type) => type.name)).toEqual(['Свой тип'])
+    expect(error).toBeInstanceOf(ApiClientError)
+    expect((error as ApiClientError).status).toBe(400)
+    expect((error as ApiClientError).message).toBe('Название типа события обязательно')
   })
 })

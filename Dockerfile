@@ -18,6 +18,11 @@ RUN pnpm install --frozen-lockfile
 
 # Build (dist/)
 COPY . .
+
+# Origin API для фронта: в проде фронт и API на разных origins (CORS на сервере).
+# В dev не используется — там Vite proxy ловит /api на same-origin.
+ARG VITE_API_BASE_URL=https://calendar-slot-api.onrender.com
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN pnpm build
 
 # ---- Runtime stage ----

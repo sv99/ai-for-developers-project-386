@@ -24,38 +24,45 @@ const mockedList = vi.mocked(listEventTypes)
 const mockedGetName = vi.mocked(getCalendarName)
 const mockedSetName = vi.mocked(setCalendarName)
 
-const mountPage = () => mount(AdminPage)
+const mountPage = async () => {
+  const wrapper = mount(AdminPage)
+  await flushPromises()
+  return wrapper
+}
 
-const nameInput = (wrapper: ReturnType<typeof mountPage>) =>
-  wrapper.find('input[placeholder="Имя календаря"]')
+type Wrapper = Awaited<ReturnType<typeof mountPage>>
 
-const nameForm = (wrapper: ReturnType<typeof mountPage>) => wrapper.find('form.form--calendar')
-const typesForm = (wrapper: ReturnType<typeof mountPage>) => wrapper.find('form.form--types')
+const nameInput = (wrapper: Wrapper) => wrapper.find('input[placeholder="Имя календаря"]')
+
+const nameForm = (wrapper: Wrapper) => wrapper.find('form.form--calendar')
+const typesForm = (wrapper: Wrapper) => wrapper.find('form.form--types')
 
 describe('AdminPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockedList.mockReturnValue([])
-    mockedGetName.mockReturnValue('Владелец')
+    mockedList.mockResolvedValue([])
+    mockedGetName.mockResolvedValue('Владелец')
+    mockedSetName.mockResolvedValue(undefined)
+    mockedCreate.mockResolvedValue(fifteenMinutes)
   })
 
-  it('renders the settings sections', () => {
-    const wrapper = mountPage()
+  it('renders the settings sections', async () => {
+    const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain('Настройки')
     expect(wrapper.text()).toContain('Календарь')
     expect(wrapper.text()).toContain('Типы событий')
   })
 
-  it('shows the current calendar name', () => {
-    mockedGetName.mockReturnValue('Команда Тота')
-    const wrapper = mountPage()
+  it('shows the current calendar name', async () => {
+    mockedGetName.mockResolvedValue('Команда Тота')
+    const wrapper = await mountPage()
 
     expect((nameInput(wrapper).element as HTMLInputElement).value).toBe('Команда Тота')
   })
 
   it('saves a new calendar name', async () => {
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
 
     await nameInput(wrapper).setValue('Команда Тота')
     await nameForm(wrapper).trigger('submit')
@@ -66,7 +73,7 @@ describe('AdminPage', () => {
   })
 
   it('does not save an empty calendar name', async () => {
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
 
     await nameInput(wrapper).setValue('   ')
     await nameForm(wrapper).trigger('submit')
@@ -75,9 +82,9 @@ describe('AdminPage', () => {
     expect(mockedSetName).not.toHaveBeenCalled()
   })
 
-  it('lists existing event types', () => {
-    mockedList.mockReturnValue([fifteenMinutes, thirtyMinutes])
-    const wrapper = mountPage()
+  it('lists existing event types', async () => {
+    mockedList.mockResolvedValue([fifteenMinutes, thirtyMinutes])
+    const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain('Встреча 15 минут')
     expect(wrapper.text()).toContain('15 мин')
@@ -86,9 +93,8 @@ describe('AdminPage', () => {
   })
 
   it('adds an event type from the form and refreshes the list', async () => {
-    mockedList.mockReturnValueOnce([]).mockReturnValueOnce([fifteenMinutes])
-    mockedCreate.mockReturnValue(fifteenMinutes)
-    const wrapper = mountPage()
+    mockedList.mockResolvedValueOnce([]).mockResolvedValueOnce([fifteenMinutes])
+    const wrapper = await mountPage()
 
     await wrapper.find('input[placeholder="Название"]').setValue('Встреча 15 минут')
     await wrapper
@@ -109,7 +115,7 @@ describe('AdminPage', () => {
   })
 
   it('does not add an empty event type', async () => {
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
 
     await typesForm(wrapper).trigger('submit')
     await flushPromises()

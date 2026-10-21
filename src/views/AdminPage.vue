@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 
 import { createEventType, listEventTypes } from '@/api/eventTypes'
@@ -8,7 +8,7 @@ import type { EventType } from '@/api/types'
 import EventTypeCard from '@/components/EventTypeCard.vue'
 
 const nameRef = ref<FormInstance>()
-const nameForm = reactive({ calendarName: getCalendarName() })
+const nameForm = reactive({ calendarName: '' })
 const nameRules: FormRules = {
   calendarName: [
     { required: true, whitespace: true, message: 'Введите имя календаря', trigger: 'blur' },
@@ -25,16 +25,31 @@ const onSaveName = async () => {
     return
   }
   try {
-    setCalendarName(nameForm.calendarName)
+    await setCalendarName(nameForm.calendarName)
   } catch (error) {
     nameError.value = error instanceof Error ? error.message : 'Не удалось сохранить имя'
     return
   }
-  nameForm.calendarName = getCalendarName()
+  nameForm.calendarName = await getCalendarName()
   nameSaved.value = true
 }
 
-const eventTypes = ref<EventType[]>(listEventTypes())
+const eventTypes = ref<EventType[]>([])
+const loading = ref(true)
+const loadError = ref('')
+
+onMounted(async () => {
+  try {
+    const [types, name] = await Promise.all([listEventTypes(), getCalendarName()])
+    eventTypes.value = types
+    nameForm.calendarName = name
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : 'Не удалось загрузить настройки'
+  } finally {
+    loading.value = false
+  }
+})
+
 const typeError = ref('')
 
 const typeRef = ref<FormInstance>()
@@ -59,7 +74,7 @@ const onAddType = async () => {
     return
   }
   try {
-    createEventType({
+    await createEventType({
       name: typeForm.name,
       description: typeForm.description,
       durationMinutes: typeForm.durationMinutes,
@@ -69,7 +84,7 @@ const onAddType = async () => {
     return
   }
   typeRef.value?.resetFields()
-  eventTypes.value = listEventTypes()
+  eventTypes.value = await listEventTypes()
 }
 </script>
 
@@ -104,7 +119,9 @@ const onAddType = async () => {
           <span class="card-title">Типы событий</span>
         </template>
 
-        <p v-if="eventTypes.length === 0" class="empty">Пока нет ни одного типа событий.</p>
+        <p v-if="loadError" class="empty" role="alert">{{ loadError }}</p>
+        <p v-else-if="loading" class="empty">Загружаем…</p>
+        <p v-else-if="eventTypes.length === 0" class="empty">Пока нет ни одного типа событий.</p>
         <ul v-else class="type-list">
           <li v-for="eventType in eventTypes" :key="eventType.id">
             <EventTypeCard :event-type="eventType" />

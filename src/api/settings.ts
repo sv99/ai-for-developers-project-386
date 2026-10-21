@@ -1,19 +1,12 @@
-const STORAGE_KEY = 'calendar-name'
+// Настройки владельца: имя календаря. Дефолт держит сервер —
+// GET отдаёт «Владелец», пока не сохранено своё.
+import { request } from './client'
+import type { CalendarName } from './types'
 
 export const DEFAULT_CALENDAR_NAME = 'Владелец'
 
-export const getCalendarName = (): string => {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (!stored || !stored.trim()) {
-    return DEFAULT_CALENDAR_NAME
-  }
-  return stored
-}
+export const getCalendarName = (): Promise<string> =>
+  request<CalendarName>('GET', '/settings/calendar-name').then((body) => body.name)
 
-export const setCalendarName = (name: string): void => {
-  const trimmed = name.trim()
-  if (!trimmed) {
-    throw new Error('Введите имя календаря')
-  }
-  localStorage.setItem(STORAGE_KEY, trimmed)
-}
+export const setCalendarName = (name: string): Promise<void> =>
+  request('PUT', '/settings/calendar-name', { name })

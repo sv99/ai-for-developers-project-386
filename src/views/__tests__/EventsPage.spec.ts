@@ -35,14 +35,15 @@ const mountPage = async () => {
   await router.push('/events')
   await router.isReady()
   const wrapper = mount(EventsPage, { global: { plugins: [router] } })
+  await flushPromises()
   return { wrapper, router }
 }
 
 describe('EventsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockedList.mockReturnValue([])
-    mockedGetName.mockReturnValue('Владелец')
+    mockedList.mockResolvedValue([])
+    mockedGetName.mockResolvedValue('Владелец')
   })
 
   it('renders the host card with the owner name, role and type-choice heading', async () => {
@@ -55,7 +56,7 @@ describe('EventsPage', () => {
   })
 
   it('shows the configured calendar name', async () => {
-    mockedGetName.mockReturnValue('Команда Тота')
+    mockedGetName.mockResolvedValue('Команда Тота')
     const { wrapper } = await mountPage()
 
     expect(wrapper.find('.host-name').text()).toBe('Команда Тота')
@@ -67,8 +68,16 @@ describe('EventsPage', () => {
     expect(wrapper.text()).toContain('Пока нет ни одного типа событий')
   })
 
+  it('shows the load error instead of the empty state when the API is unreachable', async () => {
+    mockedList.mockRejectedValue(new Error('Сервер недоступен. Попробуйте позже.'))
+    const { wrapper } = await mountPage()
+
+    expect(wrapper.text()).toContain('Сервер недоступен. Попробуйте позже.')
+    expect(wrapper.text()).not.toContain('Пока нет ни одного типа событий')
+  })
+
   it('lists existing types with name, duration and description', async () => {
-    mockedList.mockReturnValue([fifteenMinutes, thirtyMinutes])
+    mockedList.mockResolvedValue([fifteenMinutes, thirtyMinutes])
     const { wrapper } = await mountPage()
 
     expect(wrapper.text()).toContain('Встреча 15 минут')
@@ -79,7 +88,7 @@ describe('EventsPage', () => {
   })
 
   it('leads to the booking page with the chosen type', async () => {
-    mockedList.mockReturnValue([fifteenMinutes, thirtyMinutes])
+    mockedList.mockResolvedValue([fifteenMinutes, thirtyMinutes])
     const { wrapper, router } = await mountPage()
 
     await wrapper.findAll('.type-card')[1]?.trigger('click')

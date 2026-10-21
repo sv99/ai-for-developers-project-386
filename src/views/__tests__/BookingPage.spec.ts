@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
 
-import { countFreeSlots, listDayStarts } from '@/api/availability'
+import { countFreeSlots, listDayStarts, bookingWindowEnd } from '@/api/availability'
 import type { DaySlot } from '@/api/availability'
 import { createBooking } from '@/api/bookings'
 import { listEventTypes } from '@/api/eventTypes'
@@ -23,7 +23,7 @@ vi.mock('@/api/bookings', () => ({
 }))
 
 vi.mock('@/api/availability', () => ({
-  bookingWindowEnd: vi.fn(() => '2026-10-19'),
+  bookingWindowEnd: vi.fn(),
   countFreeSlots: vi.fn(),
   listDayStarts: vi.fn(),
 }))
@@ -31,6 +31,7 @@ vi.mock('@/api/availability', () => ({
 const mockedListTypes = vi.mocked(listEventTypes)
 const mockedListDayStarts = vi.mocked(listDayStarts)
 const mockedCountFreeSlots = vi.mocked(countFreeSlots)
+const mockedWindowEnd = vi.mocked(bookingWindowEnd)
 const mockedCreateBooking = vi.mocked(createBooking)
 
 const DATE = '2026-10-05'
@@ -58,6 +59,7 @@ const mountPage = async (query: Record<string, string> = { type: thirtyMinutes.i
   await router.push({ path: '/booking', query })
   await router.isReady()
   const wrapper = mount(BookingPage, { global: { plugins: [router] } })
+  await flushPromises()
   return { wrapper, router }
 }
 
@@ -95,13 +97,14 @@ const submitContact = async (wrapper: Wrapper) => {
 describe('BookingPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockedListTypes.mockReturnValue([thirtyMinutes])
-    mockedListDayStarts.mockImplementation(() => buildSlots())
-    mockedCountFreeSlots.mockReturnValue(18)
+    mockedListTypes.mockResolvedValue([thirtyMinutes])
+    mockedListDayStarts.mockImplementation(() => Promise.resolve(buildSlots()))
+    mockedCountFreeSlots.mockResolvedValue(18)
+    mockedWindowEnd.mockResolvedValue('2026-10-19')
   })
 
   it('asks to choose a type when there are no types at all', async () => {
-    mockedListTypes.mockReturnValue([])
+    mockedListTypes.mockResolvedValue([])
     const { wrapper } = await mountPage({})
 
     expect(wrapper.text()).toContain('Сначала выберите тип события')
@@ -149,7 +152,7 @@ describe('BookingPage', () => {
   })
 
   it('marks taken slots as busy and keeps them unpickable', async () => {
-    mockedListDayStarts.mockImplementation(() => buildSlots(['09:00']))
+    mockedListDayStarts.mockImplementation(() => Promise.resolve(buildSlots(['09:00'])))
     const { wrapper } = await mountPage()
 
     await pickDate(wrapper)
@@ -176,7 +179,7 @@ describe('BookingPage', () => {
   })
 
   it('tells the visitor when the day has no free time left', async () => {
-    mockedListDayStarts.mockImplementation(() => buildSlots(listStartTimes()))
+    mockedListDayStarts.mockImplementation(() => Promise.resolve(buildSlots(listStartTimes())))
     const { wrapper } = await mountPage()
 
     await pickDate(wrapper)
@@ -186,7 +189,7 @@ describe('BookingPage', () => {
   })
 
   it('tells the visitor when the event does not fit into the day at all', async () => {
-    mockedListDayStarts.mockImplementation(() => [])
+    mockedListDayStarts.mockImplementation(() => Promise.resolve([]))
     const { wrapper } = await mountPage()
 
     await pickDate(wrapper)
@@ -225,7 +228,7 @@ describe('BookingPage', () => {
 
   it('creates a booking and shows the confirmation details', async () => {
     const { wrapper } = await mountPage()
-    mockedCreateBooking.mockReturnValue({
+    mockedCreateBooking.mockResolvedValue({
       id: 'bk-1',
       eventTypeId: thirtyMinutes.id,
       date: DATE,
@@ -257,7 +260,7 @@ describe('BookingPage', () => {
 
   it('starts a new booking after «Забронировать ещё»', async () => {
     const { wrapper } = await mountPage()
-    mockedCreateBooking.mockReturnValue({
+    mockedCreateBooking.mockResolvedValue({
       id: 'bk-1',
       eventTypeId: thirtyMinutes.id,
       date: DATE,
@@ -310,10 +313,12 @@ describe('BookingPage', () => {
 
   it('returns to the refreshed slots when the time is already taken', async () => {
     let conflicted = false
-    mockedListDayStarts.mockImplementation(() => buildSlots(conflicted ? ['10:00'] : []))
+    mockedListDayStarts.mockImplementation(() =>
+      Promise.resolve(buildSlots(conflicted ? ['10:00'] : [])),
+    )
     mockedCreateBooking.mockImplementation(() => {
       conflicted = true
-      throw new Error('Это время уже занято. Выберите другое время.')
+      return Promise.reject(new Error('Это время уже занято. Выберите другое время.'))
     })
     const { wrapper } = await mountPage()
 

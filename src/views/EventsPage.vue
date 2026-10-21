@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { User } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { listEventTypes } from '@/api/eventTypes'
@@ -9,8 +9,22 @@ import type { EventType } from '@/api/types'
 import EventTypeCard from '@/components/EventTypeCard.vue'
 
 const router = useRouter()
-const eventTypes = ref<EventType[]>(listEventTypes())
-const calendarName = getCalendarName()
+const eventTypes = ref<EventType[]>([])
+const calendarName = ref('')
+const loading = ref(true)
+const loadError = ref('')
+
+onMounted(async () => {
+  try {
+    const [types, name] = await Promise.all([listEventTypes(), getCalendarName()])
+    eventTypes.value = types
+    calendarName.value = name
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : 'Не удалось загрузить календарь'
+  } finally {
+    loading.value = false
+  }
+})
 
 const choose = (eventType: EventType) => {
   router.push({ path: '/booking', query: { type: eventType.id } })
@@ -36,7 +50,9 @@ const choose = (eventType: EventType) => {
         </p>
       </section>
 
-      <p v-if="eventTypes.length === 0" class="page-empty">
+      <p v-if="loadError" class="page-empty" role="alert">{{ loadError }}</p>
+      <p v-else-if="loading" class="page-empty">Загружаем календарь…</p>
+      <p v-else-if="eventTypes.length === 0" class="page-empty">
         Пока нет ни одного типа событий. Владелец календаря может создать их в разделе «Предстоящие
         события».
       </p>

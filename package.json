@@ -21,7 +21,8 @@
     "tsp:check": "tsp compile typespec/main.tsp --no-emit",
     "openapi": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/generate-openapi.mjs --check",
-    "deploy:render": "node scripts/deploy.mjs"
+    "deploy:render": "node scripts/deploy.mjs",
+    "api:types": "openapi-typescript docs/openapi.yaml -o src/api/generated/schema.ts"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
@@ -47,6 +48,7 @@
     "jiti": "^2.7.0",
     "jsdom": "^30.0.1",
     "npm-run-all2": "^9.0.3",
+    "openapi-typescript": "^7.13.0",
     "oxfmt": "^0.68.0",
     "oxlint": "~1.83.0",
     "typescript": "~6.0.0",

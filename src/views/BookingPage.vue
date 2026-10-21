@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 
@@ -15,11 +15,11 @@ import { formatDate, formatDayLabel } from '@/utils/dates'
 const route = useRoute()
 const router = useRouter()
 
-const eventTypes = listEventTypes()
-const defaultType = eventTypes[0]
+const eventTypes = ref<EventType[]>([])
+const loadError = ref('')
 // Тип события выбирается на предыдущем экране; при прямом заходе берём тип по умолчанию.
 const eventType = computed<EventType | undefined>(
-  () => eventTypes.find((type) => type.id === route.query.type) ?? defaultType,
+  () => eventTypes.value.find((type) => type.id === route.query.type) ?? eventTypes.value[0],
 )
 const duration = computed(() => eventType.value?.durationMinutes ?? SLOT_MINUTES)
 
@@ -31,15 +31,50 @@ const freeSlots = ref(0)
 const submitError = ref('')
 const confirmation = ref<Booking | null>(null)
 // Дальше конца окна регистрации записываться некуда — календарь не листается.
-const windowEnd = bookingWindowEnd()
+const windowEnd = ref('')
 
-const refreshSlots = () => {
-  daySlots.value = selectedDate.value ? listDayStarts(selectedDate.value, duration.value) : []
-  freeSlots.value = selectedDate.value ? countFreeSlots(selectedDate.value) : 0
+onMounted(async () => {
+  try {
+    const [types, end] = await Promise.all([listEventTypes(), bookingWindowEnd()])
+    eventTypes.value = types
+    windowEnd.value = end
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : 'Не удалось загрузить календарь'
+  }
+})
+
+const refreshSlots = async () => {
+  if (!selectedDate.value) {
+    daySlots.value = []
+    freeSlots.value = 0
+    return
+  }
+  const [slots, free] = await Promise.all([
+    listDayStarts(selectedDate.value, duration.value),
+    countFreeSlots(selectedDate.value),
+  ])
+  daySlots.value = slots
+  freeSlots.value = free
 }
 
-watch([selectedDate, duration], () => {
-  refreshSlots()
+// Счётчики для календаря: MonthCalendar ждёт синхронную функцию (число на день),
+// а сервер отдаёт их HTTP-ом. Кэшируем в reactive-Map: первый вызов дня запускает
+// запрос и показывает 0, при ответе карта перерисовывается. Повторных запросов нет.
+const freeCounts = reactive(new Map<string, number>())
+const inFlight = new Set<string>()
+const countFor = (date: string): number => {
+  if (!freeCounts.has(date) && !inFlight.has(date)) {
+    inFlight.add(date)
+    countFreeSlots(date)
+      .then((count) => freeCounts.set(date, count))
+      .catch(() => freeCounts.set(date, 0))
+      .finally(() => inFlight.delete(date))
+  }
+  return freeCounts.get(date) ?? 0
+}
+
+watch([selectedDate, duration], async () => {
+  await refreshSlots()
   if (
     selectedStart.value &&
     !daySlots.value.some((slot) => slot.startTime === selectedStart.value && slot.status === 'free')
@@ -125,32 +160,32 @@ const onSubmit = async () => {
   }
 
   try {
-    confirmation.value = createBooking({
+    confirmation.value = await createBooking({
       eventTypeId: eventType.value.id,
       date: selectedDate.value,
       startTime: selectedStart.value,
       contact: { name: form.name, phone: form.phone },
     })
-    refreshSlots()
+    await refreshSlots()
     step.value = 'done'
   } catch (error) {
     submitError.value =
       error instanceof Error ? error.message : 'Не удалось записаться. Попробуйте ещё раз.'
     // Слот мог уйти, пока заполняли контакт: возвращаемся к обновлённому списку времени.
     selectedStart.value = ''
-    refreshSlots()
+    await refreshSlots()
     step.value = 'slot'
   }
 }
 
-const bookAgain = () => {
+const bookAgain = async () => {
   selectedDate.value = ''
   selectedStart.value = ''
   confirmation.value = null
   submitError.value = ''
   form.name = ''
   form.phone = ''
-  refreshSlots()
+  await refreshSlots()
   step.value = 'slot'
 }
 </script>
@@ -160,7 +195,9 @@ const bookAgain = () => {
     <div class="app-container">
       <h1 class="page-title">Запись на звонок</h1>
 
-      <p v-if="!eventType" class="page-empty">
+      <p v-if="loadError" class="page-empty" role="alert">{{ loadError }}</p>
+
+      <p v-else-if="!eventType" class="page-empty">
         Сначала выберите тип события на странице «Записаться».
       </p>
 
@@ -189,7 +226,7 @@ const bookAgain = () => {
           <section class="card">
             <MonthCalendar
               v-model="selectedDate"
-              :counts="countFreeSlots"
+              :counts="countFor"
               :window-end="windowEnd"
             />
           </section>

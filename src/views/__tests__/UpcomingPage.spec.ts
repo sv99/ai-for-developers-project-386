@@ -41,9 +41,13 @@ const booking = (overrides: Partial<Booking> = {}): Booking => ({
   ...overrides,
 })
 
-type Wrapper = ReturnType<typeof mountPage>
+type Wrapper = Awaited<ReturnType<typeof mountPage>>
 
-const mountPage = () => mount(UpcomingPage)
+const mountPage = async () => {
+  const wrapper = mount(UpcomingPage)
+  await flushPromises()
+  return wrapper
+}
 
 const pickDate = async (wrapper: Wrapper, date: string) => {
   wrapper.findComponent(MonthCalendar).vm.$emit('update:modelValue', date)
@@ -84,33 +88,34 @@ describe('UpcomingPage', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(`${TODAY}T12:00:00`))
     vi.clearAllMocks()
-    mockedListTypes.mockReturnValue([thirtyMinutes])
-    mockedListUpcoming.mockReturnValue([])
+    mockedListTypes.mockResolvedValue([thirtyMinutes])
+    mockedListUpcoming.mockResolvedValue([])
+    mockedCancel.mockResolvedValue(booking())
   })
 
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  it('shows the journal placeholder when nothing is booked yet', () => {
-    const wrapper = mountPage()
+  it('shows the journal placeholder when nothing is booked yet', async () => {
+    const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain('Предстоящих Записей пока нет')
     expect(wrapper.text()).toContain('Выберите Запись в списке.')
     expect(wrapper.findAll('.booking')).toHaveLength(0)
   })
 
-  it('asks to pick a date before showing the day', () => {
-    mockedListUpcoming.mockReturnValue([booking()])
-    const wrapper = mountPage()
+  it('asks to pick a date before showing the day', async () => {
+    mockedListUpcoming.mockResolvedValue([booking()])
+    const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain('Выберите дату в календаре.')
     expect(wrapper.findAll('.booking')).toHaveLength(0)
   })
 
   it('lists the bookings of the picked day with time, event type and contact', async () => {
-    mockedListUpcoming.mockReturnValue([booking(), booking({ id: 'bk-2', date: THURSDAY })])
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking(), booking({ id: 'bk-2', date: THURSDAY })])
+    const wrapper = await mountPage()
 
     await pickDate(wrapper, WEDNESDAY)
 
@@ -122,8 +127,8 @@ describe('UpcomingPage', () => {
   })
 
   it('shows the details of the picked booking', async () => {
-    mockedListUpcoming.mockReturnValue([booking()])
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking()])
+    const wrapper = await mountPage()
 
     await pickDate(wrapper, WEDNESDAY)
     await wrapper.find('.booking').trigger('click')
@@ -137,8 +142,8 @@ describe('UpcomingPage', () => {
   })
 
   it('drops the picked booking when another day is picked', async () => {
-    mockedListUpcoming.mockReturnValue([booking(), booking({ id: 'bk-2', date: THURSDAY })])
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking(), booking({ id: 'bk-2', date: THURSDAY })])
+    const wrapper = await mountPage()
 
     await pickDate(wrapper, WEDNESDAY)
     await wrapper.find('.booking').trigger('click')
@@ -150,12 +155,12 @@ describe('UpcomingPage', () => {
     expect(wrapper.findAll('.details-row')).toHaveLength(0)
   })
 
-  it('counts the bookings of a day in the calendar and mutes the empty days', () => {
-    mockedListUpcoming.mockReturnValue([
+  it('counts the bookings of a day in the calendar and mutes the empty days', async () => {
+    mockedListUpcoming.mockResolvedValue([
       booking({ startTime: '12:00' }),
       booking({ id: 'bk-2', startTime: '17:00' }),
     ])
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
 
     expect(dayCell(wrapper, 30)?.find('.day-count').text()).toBe('2 зап.')
     expect(dayCell(wrapper, 30)?.classes()).not.toContain('day--muted')
@@ -167,8 +172,8 @@ describe('UpcomingPage', () => {
   })
 
   it('shows the cancel action only for a picked booking', async () => {
-    mockedListUpcoming.mockReturnValue([booking()])
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking()])
+    const wrapper = await mountPage()
 
     // По умолчанию Запись не выбрана — действия нет вовсе.
     expect(wrapper.find('.remove-button').exists()).toBe(false)
@@ -182,8 +187,8 @@ describe('UpcomingPage', () => {
   })
 
   it('asks for confirmation before cancelling', async () => {
-    mockedListUpcoming.mockReturnValue([booking()])
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking()])
+    const wrapper = await mountPage()
 
     await pickDate(wrapper, WEDNESDAY)
     await pickBooking(wrapper)
@@ -199,13 +204,13 @@ describe('UpcomingPage', () => {
   })
 
   it('drops the cancelled booking from the journal', async () => {
-    mockedListUpcoming.mockReturnValue([booking()])
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking()])
+    const wrapper = await mountPage()
 
     await pickDate(wrapper, WEDNESDAY)
     await pickBooking(wrapper)
 
-    mockedListUpcoming.mockReturnValue([])
+    mockedListUpcoming.mockResolvedValue([])
     await confirm(wrapper)
 
     expect(wrapper.findAll('.booking')).toHaveLength(0)
@@ -216,11 +221,9 @@ describe('UpcomingPage', () => {
   })
 
   it('shows the reason when the booking cannot be cancelled', async () => {
-    mockedListUpcoming.mockReturnValue([booking()])
-    mockedCancel.mockImplementation(() => {
-      throw new Error('Запись уже отменена')
-    })
-    const wrapper = mountPage()
+    mockedListUpcoming.mockResolvedValue([booking()])
+    mockedCancel.mockRejectedValue(new Error('Запись уже отменена'))
+    const wrapper = await mountPage()
 
     await pickDate(wrapper, WEDNESDAY)
     await pickBooking(wrapper)
@@ -230,5 +233,13 @@ describe('UpcomingPage', () => {
     expect(wrapper.find('.form-error').text()).toBe('Запись уже отменена')
     expect(wrapper.find('.booking').exists()).toBe(true)
     expect(wrapper.find('.details-row').exists()).toBe(true)
+  })
+
+  it('shows the load error instead of the journal when the API is unreachable', async () => {
+    mockedListUpcoming.mockRejectedValue(new Error('Сервер недоступен. Попробуйте позже.'))
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Сервер недоступен. Попробуйте позже.')
+    expect(wrapper.text()).not.toContain('Предстоящих Записей пока нет')
   })
 })

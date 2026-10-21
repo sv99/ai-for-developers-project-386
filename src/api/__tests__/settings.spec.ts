@@ -1,47 +1,44 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const importApi = () => import('../settings')
+import { ApiClientError } from '../client'
+import { getCalendarName, setCalendarName } from '../settings'
+import { stubFetch } from './fetchStub'
 
-describe('settings API', () => {
-  beforeEach(() => {
-    localStorage.clear()
-    vi.resetModules()
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
+describe('getCalendarName', () => {
+  it('GET /api/settings/calendar-name and unwraps the name', async () => {
+    const stub = stubFetch()
+    stub.respondAlways(200, { name: 'Команда Тота' })
+
+    const name = await getCalendarName()
+
+    expect(name).toBe('Команда Тота')
+    expect(stub.lastCall().url).toBe('/api/settings/calendar-name')
+    expect(stub.lastCall().init.method).toBe('GET')
+  })
+})
+
+describe('setCalendarName', () => {
+  it('PUT /api/settings/calendar-name with the name and resolves on the empty 200', async () => {
+    const stub = stubFetch()
+    stub.respondAlways(200, undefined)
+
+    await setCalendarName('Команда Тота')
+
+    expect(stub.lastCall().init.method).toBe('PUT')
+    expect(JSON.parse(String(stub.lastCall().init.body))).toEqual({ name: 'Команда Тота' })
   })
 
-  it('defaults the calendar name to «Владелец»', async () => {
-    const { getCalendarName } = await importApi()
+  it('raises ApiClientError with the contract message on validation errors', async () => {
+    const stub = stubFetch()
+    stub.respondAlways(400, { message: 'Введите имя календаря' })
 
-    expect(getCalendarName()).toBe('Владелец')
-  })
+    const error = await setCalendarName('   ').catch((caught) => caught)
 
-  it('stores a new calendar name and keeps it across reloads', async () => {
-    const first = await importApi()
-    first.setCalendarName('Команда Тота')
-
-    vi.resetModules()
-    const second = await importApi()
-
-    expect(second.getCalendarName()).toBe('Команда Тота')
-  })
-
-  it('trims the stored name', async () => {
-    const { getCalendarName, setCalendarName } = await importApi()
-
-    setCalendarName('  Тота  ')
-
-    expect(getCalendarName()).toBe('Тота')
-  })
-
-  it('rejects an empty name', async () => {
-    const { setCalendarName } = await importApi()
-
-    expect(() => setCalendarName('   ')).toThrow()
-  })
-
-  it('falls back to the default when the stored name is blank', async () => {
-    localStorage.setItem('calendar-name', '   ')
-    const { getCalendarName } = await importApi()
-
-    expect(getCalendarName()).toBe('Владелец')
+    expect((error as ApiClientError).status).toBe(400)
+    expect((error as ApiClientError).message).toBe('Введите имя календаря')
   })
 })

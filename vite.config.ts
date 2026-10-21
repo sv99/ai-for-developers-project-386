@@ -24,4 +24,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Dev-маршрутизация API (решение тикета «Транспорт фронта», карта #61):
+  // фронт ходит на same-origin /api, прокси пересылает Go-серверу в WSL
+  // (Windows: localhost:3000 благодаря WSL localhost forwarding), отрезая префикс.
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 })
