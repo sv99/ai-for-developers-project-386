@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/sv99/ai-for-developers-project-386/compare/v1.8.1...v1.8.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* CORS_ORIGINS для API-сервиса в render.yaml ([c1df2f8](https://github.com/sv99/ai-for-developers-project-386/commit/c1df2f833bf1264c28efb2306a460541c5e4e8c9))
+
 ## [1.8.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.8.0...v1.8.1) (2026-10-21)
 
 
