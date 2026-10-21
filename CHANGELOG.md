@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.8.0...v1.8.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* счётчик дня в календаре не обновлялся после брони ([7232a09](https://github.com/sv99/ai-for-developers-project-386/commit/7232a0911d84b8230de2bf9ebd82c7ae76699de6))
+
 ## [1.8.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.7.0...v1.8.0) (2026-10-21)
 
 
