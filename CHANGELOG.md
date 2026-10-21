@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.8.2...v1.9.0) (2026-10-21)
+
+
+### Features
+
+* подсказка о серых днях в календаре журнала ([bb68bd9](https://github.com/sv99/ai-for-developers-project-386/commit/bb68bd9af286672b25f8214ae9bf9fdfae115229))
+
 ## [1.8.2](https://github.com/sv99/ai-for-developers-project-386/compare/v1.8.1...v1.8.2) (2026-10-21)
 
 
