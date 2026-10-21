@@ -98,3 +98,25 @@ nginx.conf.template
 # используется для настройки сервиса в Render
 render.yaml
 ```
+
+## Локальный запуск
+
+Требования: Node и pnpm (версии закреплены в `package.json`: `engines`, `packageManager`), Go (см. `server/go.mod`), Docker — для локальной БД.
+
+```bash
+pnpm install      # зависимости фронта
+pnpm db:up        # Postgres в Docker (server/compose.yaml)
+pnpm server:dev   # Go-сервер на http://localhost:3000 — миграции накатываются при старте
+pnpm dev          # фронт на http://localhost:5173, /api проксируется на :3000
+```
+
+Проверки:
+
+```bash
+pnpm lint:check   # eslint + oxlint
+pnpm test         # юнит-тесты фронта (Vitest)
+pnpm server:test  # тесты сервера, включая интеграционные (DSN и -p 1 зашиты в скрипт)
+pnpm e2e          # e2e (Playwright, chromium): сам поднимает БД, Go-сервер и фронт
+```
+
+Сборка фронта в прод-режиме: `pnpm build` (результат в `dist/`), локальный просмотр — `pnpm preview`. Все команды проекта — скрипты корневого `package.json`, полный список в AGENTS.md.
