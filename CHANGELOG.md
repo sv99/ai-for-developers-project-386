@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.8.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.7.0...v1.8.0) (2026-10-21)
+
+
+### Features
+
+* Postgres для сервера — миграции, пул, БД на Render (веха 2) ([a1d8501](https://github.com/sv99/ai-for-developers-project-386/commit/a1d85019a76f2db5ca80cc0c74ab5dea43b7b1ad))
+* операции записи контракта (веха 4) ([29c2325](https://github.com/sv99/ai-for-developers-project-386/commit/29c23254dab86f645298b1fb374f943ce447d36c))
+* операции чтения контракта (веха 3) ([17a2dbe](https://github.com/sv99/ai-for-developers-project-386/commit/17a2dbe921337b343f98ca701f466ef1f7b7c17b))
+* скелет Go-сервера с /health (веха 1) ([bc19e6f](https://github.com/sv99/ai-for-developers-project-386/commit/bc19e6f1b2c54656cded3ce0e0017e17bdadd984))
+* фронт на HTTP-API сервера (веха 5) ([3cb83c0](https://github.com/sv99/ai-for-developers-project-386/commit/3cb83c07c0493bcb55fa4282db78258da0864929))
+
+
+### Bug Fixes
+
+* заглушить errcheck на defer sqldb.Close ([1ba7fe6](https://github.com/sv99/ai-for-developers-project-386/commit/1ba7fe67aef460d8af5aa581168c57378ad06072))
+* проверять ошибку goose.SetDialect (errcheck в CI) ([ac74447](https://github.com/sv99/ai-for-developers-project-386/commit/ac74447aec8d85813dbe31e669dabada76808d32))
+* экранировать двоеточия в именах джоб CI ([b5d068c](https://github.com/sv99/ai-for-developers-project-386/commit/b5d068c6c04fcffbd1d8fcf2a9d9dced8cf1f35d))
+
 ## [1.7.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.6.0...v1.7.0) (2026-10-01)
 
 
