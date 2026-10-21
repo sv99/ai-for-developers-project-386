@@ -30,3 +30,17 @@
   max-width: var(--app-content-width);
   margin-inline: auto;
 }
+
+/* Hover сплошных кнопок — темнее, а не светлее: осветление Element Plus
+ * (light-3) на опасных действиях читается как «блеклость» (тикет #75).
+ * Двойной класс .el-button.el-button--* — чтобы перебить правила EP
+ * независимо от порядка подключения стилей. */
+.el-button.el-button--primary {
+  --el-button-hover-bg-color: var(--el-color-primary-dark-2);
+  --el-button-hover-border-color: var(--el-color-primary-dark-2);
+}
+
+.el-button.el-button--danger {
+  --el-button-hover-bg-color: var(--el-color-danger-dark-2);
+  --el-button-hover-border-color: var(--el-color-danger-dark-2);
+}
