@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  smoke:
-    name: Smoke test
+  frontend:
+    name: Frontend: test, build, smoke
     runs-on: ubuntu-latest
 
     steps:
@@ -49,3 +49,41 @@ jobs:
 
           echo "Smoke test failed: app did not respond within 30s"
           exit 1
+
+  server:
+    name: Server: lint, vet, test, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          working-directory: server
+          version: latest
+
+      - name: Regenerate contract stubs
+        run: go tool oapi-codegen --config oapi-codegen.yaml ../docs/openapi.yaml
+
+      - name: Generated code is up to date (guard)
+        run: git diff --exit-code -- gen
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build -o /dev/null ./cmd/server

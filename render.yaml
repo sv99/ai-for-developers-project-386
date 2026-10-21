@@ -8,3 +8,14 @@ services:
     plan: free
     healthCheckPath: /
     autoDeploy: true
+
+  # Go-сервер контракта typespec/http.tsp (веха 1: только /health).
+  - type: web
+    name: calendar-slot-api
+    runtime: go
+    rootDir: server
+    buildCommand: go build -tags netgo -ldflags '-s -w' -o bin/app ./cmd/server
+    startCommand: ./bin/app
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true

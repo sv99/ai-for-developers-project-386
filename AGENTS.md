@@ -4,7 +4,9 @@
 
 ## Команды
 
-Все команды — скрипты `package.json`; версии Node и pnpm закреплены там же (`engines`, `packageManager`).
+Все команды фронта — скрипты `package.json`; версии Node и pnpm закреплены там же (`engines`, `packageManager`).
+
+Сервер (`server/`, Go; тулчейн — Windows или WSL, dev-цикл владельца — Windows): `go test ./...`, `go vet ./...`, `go build ./cmd/server`. Регенерация стабов контракта: `go tool oapi-codegen --config oapi-codegen.yaml ../docs/openapi.yaml` — генерат `server/gen/` коммитится, в CI guard проверяет актуальность. Локальная БД — `docker compose` на стороне Windows (решения — в wayfinder-карте issue #61).
 
 ## Локальное окружение и проверка UI (WSL)
 

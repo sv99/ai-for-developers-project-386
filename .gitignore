@@ -47,5 +47,8 @@ __screenshots__/
 # TypeSpec
 tsp-output/
 
+# Go server (build output)
+server/bin/
+
 # Claude Code (локальные симлинки на .agents/skills)
 .claude/

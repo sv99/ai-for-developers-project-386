@@ -1,0 +1,7 @@
+# Конфиг oapi-codegen: стабы генерируются из коммиченной docs/openapi.yaml (TypeSpec -> OpenAPI)
+# и коммитятся в server/gen; CI-джоба server проверяет их актуальность (git diff --exit-code).
+package: gen
+output: gen/gen.go
+generate:
+  chi-server: true
+  models: true
