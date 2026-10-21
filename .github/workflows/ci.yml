@@ -2,8 +2,15 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    # только main: PR-ветки проверяет pull_request-запуск; push по '**' гонял
+    # каждый коммит PR-ветки второй раз параллельно с pull_request-прогоном.
+    branches: [main]
   pull_request:
+
+# Новые пуши в ту же ветку отменяют устаревшие прогоны — не копим очередь.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   frontend:
