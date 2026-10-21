@@ -4,9 +4,12 @@
 
 ## Команды
 
-Все команды фронта — скрипты `package.json`; версии Node и pnpm закреплены там же (`engines`, `packageManager`).
+Все команды — скрипты корневого `package.json` (версии Node и pnpm закреплены там же: `engines`, `packageManager`). DSN локальной compose-БД зашит в серверных скриптах через `cross-env`; CI зовёт `go` напрямую со своим `DATABASE_URL`.
 
-Сервер (`server/`, Go; тулчейн — Windows или WSL, dev-цикл владельца — Windows): `go test ./...`, `go vet ./...`, `go build ./cmd/server`. Регенерация стабов контракта: `go tool oapi-codegen --config oapi-codegen.yaml ../docs/openapi.yaml` — генерат `server/gen/` коммитится, в CI guard проверяет актуальность. Локальная БД — `server/compose.yaml` на стороне Windows (`docker compose up -d`, DSN в комментарии файла); миграции goose (embed, `internal/store/migrations/`) накатываются при старте сервера и в `TestMain` тестов store — интеграционные тесты идут по `DATABASE_URL`, без него пропускаются. Решения — в wayfinder-карте issue #61.
+- Фронт: `pnpm dev` / `pnpm build` / `pnpm test` / `pnpm lint:check`.
+- Сервер (`server/`, Go; тулчейн — Windows или WSL, dev-цикл владельца — Windows): `pnpm server:test` (интеграционные; `-p 1` — пакеты делят одну БД), `pnpm server:vet`, `pnpm server:build`, `pnpm server:dev`. Регенерация стабов контракта — `pnpm server:gen`: генерат `server/gen/` коммитится, в CI guard проверяет актуальность.
+- Локальная БД — `pnpm db:up` / `pnpm db:down` (compose `server/compose.yaml` на стороне Windows). Миграции goose (embed, `internal/store/migrations/`) накатываются при старте сервера и в `TestMain` тестов store — интеграционные тесты идут по `DATABASE_URL`, без него пропускаются.
+- Решения — в wayfinder-карте issue #61.
 
 ## Локальное окружение и проверка UI (WSL)
 
