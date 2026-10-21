@@ -12,9 +12,11 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/sv99/ai-for-developers-project-386/server/internal/store"
 )
@@ -184,4 +186,156 @@ func isPgCode(err error, code string) bool {
 		return false
 	}
 	return pgErr.Code == code
+}
+
+// --- Операции чтения (веха 3) ---
+
+func TestListEventTypesSortedByName(t *testing.T) {
+	pg, cleanup := setupTestDB(t)
+	defer cleanup()
+
+	for _, tc := range []struct{ name string }{{"Второй"}, {"Первый"}} {
+		if _, err := pg.Exec(context.Background(),
+			`insert into event_types (name, duration_minutes) values ($1, 30)`, tc.name); err != nil {
+			t.Fatalf("insert: %v", err)
+		}
+	}
+
+	st := store.New(poolOf(t, pg))
+	types, err := st.ListEventTypes(context.Background())
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(types) != 2 || types[0].Name != "Второй" || types[1].Name != "Первый" {
+		t.Fatalf("want sorted by name, got %v", types)
+	}
+}
+
+func TestGetCalendarNameDefaultsToOwner(t *testing.T) {
+	pg, cleanup := setupTestDB(t)
+	defer cleanup()
+
+	st := store.New(poolOf(t, pg))
+	ctx := context.Background()
+
+	name, err := st.GetCalendarName(ctx)
+	if err != nil {
+		t.Fatalf("default: %v", err)
+	}
+	if name != store.DefaultCalendarName {
+		t.Fatalf("want default %q, got %q", store.DefaultCalendarName, name)
+	}
+
+	if _, err := pg.Exec(ctx,
+		`insert into settings (key, value) values ('calendar_name', 'Звонилка')`); err != nil {
+		t.Fatalf("insert setting: %v", err)
+	}
+	name, err = st.GetCalendarName(ctx)
+	if err != nil {
+		t.Fatalf("after insert: %v", err)
+	}
+	if name != "Звонилка" {
+		t.Fatalf("want Звонилка, got %q", name)
+	}
+}
+
+func TestListBookingsFormatsContractFields(t *testing.T) {
+	pg, cleanup := setupTestDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	typeID := insertEventType(t, pg, "Вводный звонок", 60)
+	if err := insertBooking(t, pg, typeID, "2026-11-01", "09:00", 60); err != nil {
+		t.Fatalf("insert: %v", err)
+	}
+
+	st := store.New(poolOf(t, pg))
+	bookings, err := st.ListBookings(ctx)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(bookings) != 1 {
+		t.Fatalf("want 1 booking, got %d", len(bookings))
+	}
+	b := bookings[0]
+	if b.Date != "2026-11-01" || b.StartTime != "09:00" { // HH:mm, без секунд
+		t.Fatalf("contract formats wrong: date=%q startTime=%q", b.Date, b.StartTime)
+	}
+	if b.Contact.Name != "Гость" || b.Status != "active" {
+		t.Fatalf("fields wrong: %+v", b)
+	}
+	if _, err := time.Parse(time.RFC3339, b.CreatedAt); err != nil {
+		t.Fatalf("createdAt must be ISO 8601: %q", b.CreatedAt)
+	}
+}
+
+func TestUpcomingFiltersPastAndCancelled(t *testing.T) {
+	pg, cleanup := setupTestDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	typeID := insertEventType(t, pg, "Вводный звонок", 30)
+
+	now := atTime(t, "2026-10-21", "12:00") // ADR 0004: наивное «сейчас» в поясе владельца
+
+	// Завтра активная — попадает; в прошлом активная — нет; отменённая завтра — нет.
+	for _, tc := range []struct {
+		date, clock string
+		cancel      bool
+		want        bool
+	}{
+		{"2026-10-22", "09:00", false, true},
+		{"2020-01-01", "09:00", false, false},
+		{"2026-10-22", "15:00", true, false},
+	} {
+		if err := insertBookingAt(t, pg, typeID, tc.date, tc.clock); err != nil {
+			t.Fatalf("insert %s %s: %v", tc.date, tc.clock, err)
+		}
+		if tc.cancel {
+			if _, err := pg.Exec(ctx,
+				`update bookings set status = 'cancelled'
+				 where date = $1 and start_time = $2`, tc.date, tc.clock); err != nil {
+				t.Fatalf("cancel: %v", err)
+			}
+		}
+	}
+
+	st := store.New(poolOf(t, pg))
+	upcoming, err := st.ListUpcomingBookings(ctx, now)
+	if err != nil {
+		t.Fatalf("upcoming: %v", err)
+	}
+	if len(upcoming) != 1 || upcoming[0].Date != "2026-10-22" || upcoming[0].StartTime != "09:00" {
+		t.Fatalf("want only tomorrow 09:00, got %+v", upcoming)
+	}
+}
+
+func insertBookingAt(t *testing.T, pg tx, eventTypeID, date, clock string) error {
+	t.Helper()
+	_, err := pg.Exec(context.Background(),
+		`insert into bookings (event_type_id, date, start_time, duration_minutes, ends_at,
+		                       guest_name, guest_phone)
+		 values ($1, $2::date, $3::time, 30, ($2::date + $3::time) + interval '30 minutes',
+		         'Гость', '+7 900 000-00-00')`,
+		eventTypeID, date, clock)
+	return err
+}
+
+// atTime — наивный момент в фиксированной локации (аналог ADR 0004: «сейчас» владельца).
+func atTime(t *testing.T, date, clock string) time.Time {
+	t.Helper()
+	moment, err := time.ParseInLocation("2006-01-02 15:04", date+" "+clock, time.UTC)
+	if err != nil {
+		t.Fatalf("parse moment: %v", err)
+	}
+	return moment
+}
+
+func poolOf(t *testing.T, pg *pgx.Conn) *pgxpool.Pool {
+	t.Helper()
+	pool, err := store.Connect(context.Background(), testDBURL)
+	if err != nil {
+		t.Fatalf("reconnect: %v", err)
+	}
+	return pool
 }
