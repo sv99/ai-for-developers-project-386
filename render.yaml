@@ -26,6 +26,10 @@ services:
           property: connectionString
       - key: OWNER_TZ
         value: UTC
+      # Фронт и API на разных origins — без этого браузер блокирует ответы
+      # (нет Access-Control-Allow-Origin), в проде всё выглядит «недоступным».
+      - key: CORS_ORIGINS
+        value: https://calendar-slot.onrender.com
 
 databases:
   # ⚠️ free-план: БД живёт 30 дней (затем пересоздание/апгрейд) — см. решение тикета #66.
