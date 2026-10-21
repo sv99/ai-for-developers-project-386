@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.9.0...v1.9.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* hover сплошных кнопок — темнее вместо светлее (тикет [#75](https://github.com/sv99/ai-for-developers-project-386/issues/75)) ([bb4fb93](https://github.com/sv99/ai-for-developers-project-386/commit/bb4fb9311859bb43ab175a6286eb35f854aa6501))
+
 ## [1.9.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.8.2...v1.9.0) (2026-10-21)
 
 
