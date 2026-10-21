@@ -36,7 +36,9 @@ func Migrate(ctx context.Context, url string) error {
 	defer sqldb.Close()
 
 	goose.SetBaseFS(migrationsFS)
-	goose.SetDialect("postgres")
+	if err := goose.SetDialect("postgres"); err != nil {
+		return fmt.Errorf("goose dialect: %w", err)
+	}
 	if err := goose.UpContext(ctx, sqldb, "migrations"); err != nil {
 		return fmt.Errorf("apply migrations: %w", err)
 	}
