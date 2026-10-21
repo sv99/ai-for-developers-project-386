@@ -88,6 +88,52 @@ func covered(minutes int, busy []TimeRange) bool {
 	return false
 }
 
+// IsStartTime — время в сетке дня: кратно Слоту, в окне 09:00…17:30.
+func IsStartTime(clock string) bool {
+	minutes, err := ParseMinutes(clock)
+	if err != nil {
+		return false
+	}
+	return minutes >= DayStartMinutes && minutes < DayEndMinutes && minutes%SlotMinutes == 0
+}
+
+// SlotsCount — сколько Слотов занимает длительность (округление вверх, 40 мин → 2 Слота).
+func SlotsCount(durationMinutes int) int {
+	return (durationMinutes + SlotMinutes - 1) / SlotMinutes
+}
+
+// FitsInDay — событие от startTime помещается до конца рабочего дня (18:00).
+func FitsInDay(startTime string, durationMinutes int) bool {
+	start, err := ParseMinutes(startTime)
+	if err != nil {
+		return false
+	}
+	return start+SlotsCount(durationMinutes)*SlotMinutes <= DayEndMinutes
+}
+
+// ParseMinutes — HH:mm → минуты от полуночи.
+func ParseMinutes(clock string) (int, error) {
+	t, err := time.ParseInLocation(MinuteLayout, clock, time.UTC)
+	if err != nil {
+		return 0, fmt.Errorf("parse time %q: %w", clock, err)
+	}
+	return t.Hour()*60 + t.Minute(), nil
+}
+
+// Moment — наивный момент домена (дата + время дня): time.Time в UTC-представлении
+// без пояса (ADR 0004 — домен хранит наивные значения OWNER_TZ).
+func Moment(date, clock string) (time.Time, error) {
+	return time.ParseInLocation("2006-01-02 15:04", date+" "+clock, time.UTC)
+}
+
+// NaiveNow — момент now в поясе владельца как наивное время (UTC-представление),
+// чтобы сравнивать с Moment без поясовой арифметики.
+func NaiveNow(now time.Time) time.Time {
+	y, m, d := now.Date()
+	h, mi, sec := now.Clock()
+	return time.Date(y, m, d, h, mi, sec, 0, time.UTC)
+}
+
 func status(taken bool) gen.SlotStatus {
 	if taken {
 		return gen.Taken
