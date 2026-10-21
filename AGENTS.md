@@ -6,7 +6,7 @@
 
 Все команды фронта — скрипты `package.json`; версии Node и pnpm закреплены там же (`engines`, `packageManager`).
 
-Сервер (`server/`, Go; тулчейн — Windows или WSL, dev-цикл владельца — Windows): `go test ./...`, `go vet ./...`, `go build ./cmd/server`. Регенерация стабов контракта: `go tool oapi-codegen --config oapi-codegen.yaml ../docs/openapi.yaml` — генерат `server/gen/` коммитится, в CI guard проверяет актуальность. Локальная БД — `docker compose` на стороне Windows (решения — в wayfinder-карте issue #61).
+Сервер (`server/`, Go; тулчейн — Windows или WSL, dev-цикл владельца — Windows): `go test ./...`, `go vet ./...`, `go build ./cmd/server`. Регенерация стабов контракта: `go tool oapi-codegen --config oapi-codegen.yaml ../docs/openapi.yaml` — генерат `server/gen/` коммитится, в CI guard проверяет актуальность. Локальная БД — `server/compose.yaml` на стороне Windows (`docker compose up -d`, DSN в комментарии файла); миграции goose (embed, `internal/store/migrations/`) накатываются при старте сервера и в `TestMain` тестов store — интеграционные тесты идут по `DATABASE_URL`, без него пропускаются. Решения — в wayfinder-карте issue #61.
 
 ## Локальное окружение и проверка UI (WSL)
 

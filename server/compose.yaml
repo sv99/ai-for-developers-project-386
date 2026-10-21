@@ -1,0 +1,16 @@
+# Локальная БД для разработки и тестов store (Windows: `docker compose up -d`).
+# В CI ту же роль играет service-контейнер postgres:16 (см. .github/workflows/ci.yml).
+# DSN: postgres://postgres:postgres@localhost:5432/calendar (из WSL — хост = IP Windows-машины из vEthernet (WSL)).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: calendar
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
