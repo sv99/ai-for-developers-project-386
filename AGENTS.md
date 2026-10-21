@@ -9,6 +9,7 @@
 - Фронт: `pnpm dev` / `pnpm build` / `pnpm test` / `pnpm lint:check`.
 - Сервер (`server/`, Go; тулчейн — Windows или WSL, dev-цикл владельца — Windows): `pnpm server:test` (интеграционные; `-p 1` — пакеты делят одну БД), `pnpm server:vet`, `pnpm server:build`, `pnpm server:dev`. Регенерация стабов контракта — `pnpm server:gen`: генерат `server/gen/` коммитится, в CI guard проверяет актуальность.
 - Локальная БД — `pnpm db:up` / `pnpm db:down` (compose `server/compose.yaml` на стороне Windows). Миграции goose (embed, `internal/store/migrations/`) накатываются при старте сервера и в `TestMain` тестов store — интеграционные тесты идут по `DATABASE_URL`, без него пропускаются.
+- e2e — `pnpm e2e` (Playwright, каталог `e2e/`): стек поднимается сам — compose-БД, Go-сервер на :3000 и Vite на :5173 (см. `playwright.config.ts`); `pnpm e2e:reset` чистит БД между тестами.
 - Решения — в wayfinder-карте issue #61.
 
 ## Локальное окружение и проверка UI (WSL)
@@ -30,7 +31,7 @@
 
 ## Тесты
 
-Vitest; один файл — `pnpm test LandingPage`. Тесты лежат рядом с компонентами: `src/**/__tests__/*.spec.ts`.
+Vitest; один файл — `pnpm test LandingPage`. Тесты лежат рядом с компонентами: `src/**/__tests__/*.spec.ts`. E2E — Playwright: `pnpm e2e` (один файл — `pnpm e2e booking`); сценарии в `e2e/*.spec.ts`, селекторы — по классам вёрстки (`.type-card`, `.slot`, `.day`), сидирование и проверки данных — через API напрямую (:3000).
 
 ## CI (не ломать)
 
