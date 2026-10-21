@@ -166,6 +166,9 @@ const onSubmit = async () => {
       startTime: selectedStart.value,
       contact: { name: form.name, phone: form.phone },
     })
+    // Бронь изменила занятость дня — кэш счётчиков календаря для этой даты устарел:
+    // выкидываем, чтобы «Забронировать ещё» показала актуальное число свободных.
+    freeCounts.delete(selectedDate.value)
     await refreshSlots()
     step.value = 'done'
   } catch (error) {
