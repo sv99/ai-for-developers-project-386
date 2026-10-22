@@ -36,6 +36,14 @@ jobs:
       - name: Lint
         run: pnpm lint:check
 
+      - name: Contract document is up to date (guard)
+        run: pnpm openapi:check
+
+      - name: Frontend generated code is up to date (guard)
+        run: |
+          pnpm api:sdk
+          git diff --exit-code -- src/api/generated
+
       - name: Test
         run: pnpm test
 

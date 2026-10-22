@@ -35,7 +35,7 @@ Vitest; один файл — `pnpm test LandingPage`. Тесты лежат р�
 
 ## CI (не ломать)
 
-- `ci.yml` (push в main + PR): три джобы — `frontend` (lint → test → build → smoke: `pnpm preview` на порту 4173, проверяется `id="app"` в HTML), `server` (golangci-lint, guard генерата, vet, `go test -p 1` с service-контейнером postgres) и `e2e` (postgres service-контейнер + `pnpm e2e`; при падении — артефакт `playwright-report`). **Не убирай `<div id="app">` из `index.html`** — упадёт smoke-тест.
+- `ci.yml` (push в main + PR): три джобы — `frontend` (lint → guard-ы генератов (`openapi:check`, `api:sdk` + `git diff` по `src/api/generated`) → test → build → smoke: `pnpm preview` на порту 4173, проверяется `id="app"` в HTML), `server` (golangci-lint, guard генерата, vet, `go test -p 1` с service-контейнером postgres) и `e2e` (postgres service-контейнер + `pnpm e2e`; при падении — артефакт `playwright-report`). **Не убирай `<div id="app">` из `index.html`** — упадёт smoke-тест.
 - `hexlet-check.yml` — сгенерирован Хекслетом: **не удалять, не переименовывать, не редактировать** (и не переименовывать репозиторий).
 
 ## Коммиты и релизы
