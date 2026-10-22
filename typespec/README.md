@@ -47,6 +47,7 @@ pnpm tsp:check
 pnpm openapi        # собрать docs/openapi.yaml из typespec/http.tsp
 pnpm openapi:check  # проверить, что docs/openapi.yaml актуален (для CI)
 pnpm api:sdk        # фронтовые типы + клиентский SDK из docs/openapi.yaml
+pnpm generate       # вся регенерация разом: openapi → api:sdk → server:gen
 ```
 
 Скрипт `scripts/generate-openapi.mjs` компилирует `typespec/http.tsp` эмиттером `@typespec/openapi3`, кладёт результат в `docs/openapi.yaml` и убирает временную папку `tsp-output/` (она в `.gitignore`). Флаги: `--out <dir>`, `--name <file>`, `--check`.

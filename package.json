@@ -25,6 +25,7 @@
     "api:types": "openapi-typescript docs/openapi.yaml -o src/api/generated/schema.ts",
     "api:sdk": "run-s api:types gen-sdk",
     "gen-sdk": "node scripts/generate-sdk.mjs",
+    "generate": "run-s openapi api:sdk server:gen",
     "server:build": "go -C server build -o ./bin/ ./cmd/server",
     "server:dev": "cross-env DATABASE_URL=postgres://postgres:postgres@localhost:5432/calendar go -C server run ./cmd/server",
     "server:test": "cross-env DATABASE_URL=postgres://postgres:postgres@localhost:5432/calendar go -C server test -p 1 ./...",
