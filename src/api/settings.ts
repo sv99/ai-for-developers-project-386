@@ -6,7 +6,7 @@ import type { CalendarName } from './types'
 export const DEFAULT_CALENDAR_NAME = 'Владелец'
 
 export const getCalendarName = (): Promise<string> =>
-  request<CalendarName>('GET', '/settings/calendar-name').then((body) => body.name)
+  request<CalendarName>((api) => api.getCalendarName()).then((body) => body.name)
 
 export const setCalendarName = (name: string): Promise<void> =>
-  request('PUT', '/settings/calendar-name', { name })
+  request<null>((api) => api.setCalendarName({ name })).then(() => undefined)

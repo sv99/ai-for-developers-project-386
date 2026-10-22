@@ -7,16 +7,14 @@ import type { BookingWindowEnd, DaySlot, FreeSlotsCount } from './types'
 export type { DaySlot } from './types'
 
 export const listDaySlots = (date: string): Promise<DaySlot[]> =>
-  request<DaySlot[]>('GET', `/slots?date=${encodeURIComponent(date)}`)
+  request<DaySlot[]>((api) => api.listDaySlots(date))
 
 // Слоты, которые могут стать началом события такой длительности.
 export const listDayStarts = (date: string, durationMinutes: number): Promise<DaySlot[]> =>
   listDaySlots(date).then((slots) => slots.filter((slot) => fitsInDay(slot.startTime, durationMinutes)))
 
 export const countFreeSlots = (date: string): Promise<number> =>
-  request<FreeSlotsCount>('GET', `/slots/free-count?date=${encodeURIComponent(date)}`).then(
-    (body) => body.count,
-  )
+  request<FreeSlotsCount>((api) => api.countFreeSlots(date)).then((body) => body.count)
 
 export const bookingWindowEnd = (): Promise<string> =>
-  request<BookingWindowEnd>('GET', '/booking-window-end').then((body) => body.date)
+  request<BookingWindowEnd>((api) => api.bookingWindowEnd()).then((body) => body.date)

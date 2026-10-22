@@ -1,4 +1,6 @@
-// Транспорт API: тонкий fetch-слой (решение тикета «Транспорт фронта», карта #61).
+// Транспорт API: типизированный SDK из контракта (src/api/generated/sdk.ts —
+// создаётся scripts/generate-sdk.mjs из docs/openapi.yaml на рантайме openapi-fetch)
+// плюс семантика ошибок ApiClientError. Пути и методы запросов живут только в SDK.
 //
 // База — VITE_API_BASE_URL:
 // - в dev не задана → '/api': запросы уходят на same-origin, Vite proxy
@@ -8,6 +10,8 @@
 //
 // Ошибки — ApiClientError с сообщением контракта: сервер отдаёт готовые
 // русские тексты, UI показывает их как есть.
+
+import { createSdk, type Sdk } from './generated/sdk'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
@@ -21,38 +25,33 @@ export class ApiClientError extends Error {
   }
 }
 
-type Method = 'GET' | 'POST' | 'PUT'
+type SdkResult = { data?: unknown; error?: unknown; response: Response }
 
-export async function request<T>(method: Method, path: string, body?: unknown): Promise<T> {
-  let response: Response
+/** Выполнить вызов SDK: сетевая ошибка → статус 0, не-2xx → статус и message контракта. */
+export async function request<T>(make: (sdk: Sdk) => Promise<SdkResult>): Promise<T> {
+  let result: SdkResult
   try {
-    response = await fetch(`${BASE}${path}`, {
-      method,
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    })
+    // SDK собираем под каждый вызов: createClient фиксирует глобальные fetch/Request
+    // при создании, а в тестах они подменяются перед каждым запросом
+    result = await make(createSdk(BASE))
   } catch {
+    // openapi-fetch пробрасывает ошибку fetch как есть (в браузере — TypeError сети)
     throw new ApiClientError(0, 'Сервер недоступен. Попробуйте позже.')
   }
-  return parse<T>(response)
-}
-
-async function parse<T>(response: Response): Promise<T> {
-  const text = await response.text()
-  if (!response.ok) {
-    throw new ApiClientError(response.status, messageFrom(text))
+  const { data, error, response } = result
+  if (error !== undefined) {
+    // не-2xx: openapi-fetch кладёт в error распарсенное тело (не-JSON — строкой)
+    throw new ApiClientError(response.status, messageFrom(error))
   }
-  return (text ? JSON.parse(text) : null) as T
+  return (data === undefined ? null : data) as T
 }
 
-function messageFrom(text: string): string {
-  try {
-    const data = JSON.parse(text) as { message?: unknown }
-    if (typeof data.message === 'string' && data.message) {
-      return data.message
+function messageFrom(error: unknown): string {
+  if (error !== null && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message) {
+      return message
     }
-  } catch {
-    // тело не JSON — общий текст ниже
   }
   return 'Внутренняя ошибка сервера'
 }

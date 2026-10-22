@@ -1,8 +1,8 @@
-// Типы событий: чтение и создание. Раньше — localStorage, теперь — HTTP-контракт.
+// Типы событий: чтение и создание. Пути и методы — из сгенерированного SDK (контракт).
 import { request } from './client'
 import type { EventType, EventTypeInput } from './types'
 
-export const listEventTypes = (): Promise<EventType[]> => request('GET', '/event-types')
+export const listEventTypes = (): Promise<EventType[]> => request<EventType[]>((api) => api.listEventTypes())
 
 export const createEventType = (input: EventTypeInput): Promise<EventType> =>
-  request('POST', '/event-types', input)
+  request<EventType>((api) => api.createEventType(input))

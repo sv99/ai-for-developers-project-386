@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiClientError } from '../client'
 import { cancelBooking, createBooking, listBookings, listUpcomingBookings } from '../bookings'
-import { stubFetch } from './fetchStub'
+import { StubRequest, stubFetch } from './fetchStub'
 
 const booking = {
   id: 'bk-1',
@@ -106,6 +106,7 @@ describe('network failures', () => {
       throw new TypeError('fetch failed')
     })
     vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('Request', StubRequest)
 
     const error = await listBookings().catch((caught) => caught)
 
@@ -115,8 +116,12 @@ describe('network failures', () => {
   })
 
   it('falls back to a generic message when the error body is not JSON', async () => {
-    const fetchMock = vi.fn(async () => ({ ok: false, status: 502, text: async () => 'Bad Gateway' }) as Response)
+    const fetchMock = vi.fn(
+      async () =>
+        ({ ok: false, status: 502, headers: new Headers(), text: async () => 'Bad Gateway' }) as Response,
+    )
     vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('Request', StubRequest)
 
     const error = await listBookings().catch((caught) => caught)
 
