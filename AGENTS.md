@@ -47,9 +47,10 @@ Vitest; один файл — `pnpm test LandingPage`. Тесты лежат р�
 
 ## TypeSpec
 
-- `typespec/main.tsp` — доменная модель API-слоя (сущности, ограничения, операции `src/api`). Это **не** HTTP-контракт: сервис клиентский, эндпоинтов нет. Проверка — `pnpm tsp:check`.
-- `typespec/http.tsp` — справочный прототип HTTP-контракта (задел на будущий сервер). Подробности — `typespec/README.md`.
+- `typespec/main.tsp` — доменная модель API-слоя (сущности, ограничения, операции `src/api`), без маршрутов. Проверка — `pnpm tsp:check`.
+- `typespec/http.tsp` — HTTP-контракт: маршруты и методы поверх моделей `main.tsp`. Подробности — `typespec/README.md`.
 - `docs/openapi.yaml` — сгенерированный из `typespec/http.tsp` контракт (`pnpm openapi`, проверка актуальности — `pnpm openapi:check`), **коммитится**, руками не редактируется.
+- Фронтовые типы и клиентский SDK генерируются из `docs/openapi.yaml` (`pnpm api:sdk`: openapi-typescript + openapi-fetch), серверные стабы — `pnpm server:gen`; оба генерата коммитятся и проверяются guard-ами CI.
 
 ## Agent skills
 

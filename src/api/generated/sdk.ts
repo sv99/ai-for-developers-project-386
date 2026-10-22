@@ -27,8 +27,7 @@ export const createSdk = (baseUrl: string) => {
   /** Создаёт Тип события. Ошибки: пустое название, длительность не целое или меньше 1.
 Соответствует `createEventType`. */
   createEventType: (body: components['schemas']['EventTypeInput']) => client.POST('/event-types', { body }),
-  /** Проверка состояния. Служебный эндпоинт, в v1 нет аналога в `src/api`;
-добавлен, чтобы у сервиса была хотя бы одна операция без ошибок. */
+  /** Проверка состояния сервера. Служебный эндпоинт: во фронтовом API-слое аналога нет. */
   health: () => client.GET('/health'),
   /** Имя календаря; по умолчанию «Владелец». Соответствует `getCalendarName`. */
   getCalendarName: () => client.GET('/settings/calendar-name'),

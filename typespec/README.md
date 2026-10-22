@@ -1,8 +1,8 @@
-# TypeSpec: доменная модель API-слоя
+# TypeSpec: доменная модель и HTTP-контракт
 
-Файл `typespec/main.tsp` описывает доменную модель «Календаря звонков» по контракту API-слоя в `src/api`.
+Файл `typespec/main.tsp` описывает доменную модель «Календаря звонков»: сущности, их ограничения и операции API-слоя.
 
-Это **не** HTTP-контракт: сервис клиентский, модули `src/api` работают с `localStorage` напрямую, эндпоинтов нет (см. `docs/spec.md`). Поэтому в модели нет маршрутов и сервисов — только сущности, их ограничения и операции слоя.
+Это **не** HTTP-контракт: в модели нет маршрутов и сервисов — только сущности, их ограничения и операции слоя. HTTP-поверхность навешивается на те же модели в `typespec/http.tsp`; из него генерируются OpenAPI-документ, серверные стабы и фронтовые типы.
 
 ## Что внутри
 
@@ -31,21 +31,22 @@ pnpm tsp:check
 - `@typespec/json-schema` не создаёт вообще ничего: схемы не форсируются, если на них не ссылается HTTP-сторона.
 - `@typespec/http-client-js` формально генерирует клиент со всеми моделями, но **выдумывает маршруты**: `listBookings` бьёт в `GET /` — эндпоинтов, которых нет. Такой SDK нерабочий и опасен: он выглядит настоящим.
 
-Это следствие природы проекта: по `docs/spec.md` сервис клиентский, `src/api` пишет в `localStorage`, сервера и эндпоинтов в v1 нет. Описывать сетевой интерфейс нечего.
+Это природа самой модели: `main.tsp` описывает домен без HTTP-поверхности, описывать сетевой интерфейс в нём нечего — сетевой интерфейс живёт в `http.tsp`, генерируйте из него.
 
-## Прототип HTTP-контракта: `http.tsp`
+## HTTP-контракт: `http.tsp`
 
-`typespec/http.tsp` — **справочный прототип**, задел на будущий сервер. Он импортирует `main.tsp`, переиспользует модели и навешивает на те же операции HTTP-поверхность: `@service`, `@server`, `@route`, `@get`/`@post`/`@put`, `@path`/`@query`/`@body`, `@statusCode` и коды ошибок (`ValidationError` → 400, `NotFoundError` → 404, `ConflictError` → 409).
+`typespec/http.tsp` — HTTP-контракт сервиса. Он импортирует `main.tsp`, переиспользует модели и навешивает на те же операции HTTP-поверхность: `@service`, `@server`, `@route`, `@get`/`@post`/`@put`, `@path`/`@query`/`@body`, `@statusCode` и коды ошибок (`ValidationError` → 400, `NotFoundError` → 404, `ConflictError` → 409).
 
-С добавленной HTTP-поверхностью эмиттеры дают то, что нужно: полноценный OpenAPI со всеми 11 путями и схемами, а SDK-эмиттер — клиент с настоящими маршрутами (`GET /bookings`, `POST /bookings/{id}/cancel` …) вместо фиктивного `GET /`.
+С добавленной HTTP-поверхностью эмиттеры дают то, что нужно: полноценный OpenAPI со всеми операциями и схемами, а SDK-эмиттер — клиент с настоящими маршрутами (`GET /bookings`, `POST /bookings/{id}/cancel` …) вместо фиктивного `GET /`.
 
-`@typespec/http` и `@typespec/openapi3` стоят в `devDependencies`, поэтому `http.tsp` компилируется штатно. SDK-эмиттер (`@typespec/http-client-js`) в зависимости не добавлен — он нужен только для разовой демонстрации.
+Фронтовые типы и SDK генерируются не TypeSpec-эмиттером, а из собранного `docs/openapi.yaml`: `pnpm api:sdk` (openapi-typescript + openapi-fetch). Эмиттер `@typespec/http-client-js` в зависимостях проекта не нужен.
 
-## Генерация OpenAPI
+## Генерация OpenAPI и SDK
 
 ```bash
 pnpm openapi        # собрать docs/openapi.yaml из typespec/http.tsp
 pnpm openapi:check  # проверить, что docs/openapi.yaml актуален (для CI)
+pnpm api:sdk        # фронтовые типы + клиентский SDK из docs/openapi.yaml
 ```
 
 Скрипт `scripts/generate-openapi.mjs` компилирует `typespec/http.tsp` эмиттером `@typespec/openapi3`, кладёт результат в `docs/openapi.yaml` и убирает временную папку `tsp-output/` (она в `.gitignore`). Флаги: `--out <dir>`, `--name <file>`, `--check`.
