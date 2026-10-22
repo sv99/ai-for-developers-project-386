@@ -12,8 +12,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Последний день окна регистрации, `YYYY-MM-DD`: сегодня + 14 дней.
-         *     Соответствует `bookingWindowEnd`.
+         * @description Последний день окна регистрации, `YYYY-MM-DD`: 14-я дата вместе с сегодняшней
+         *     (сегодня + 13 дней). Соответствует `bookingWindowEnd`.
          */
         get: operations["bookingWindowEnd"];
         put?: never;
@@ -151,7 +151,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Слоты дня со статусами (`listDaySlots`). За окном регистрации (сегодня + 14 дней)
+         * @description Слоты дня со статусами (`listDaySlots`). За окном регистрации (14 дат, включая сегодня)
          *     и в прошлом все Слоты `taken`.
          */
         get: operations["listDaySlots"];

@@ -17,8 +17,8 @@ const plusDays = (iso: string, days: number) => {
 const mountCalendar = (props: Record<string, unknown> = {}) => {
   const today = typeof props.today === 'string' && props.today ? props.today : TODAY
   return mount(MonthCalendar, {
-    // По умолчанию окно регистрации открыто на 14 дней вперёд от today.
-    props: { modelValue: '', counts: () => 18, today, windowEnd: plusDays(today, 14), ...props },
+    // По умолчанию окно регистрации — 14 дат, включая today (последний — today + 13).
+    props: { modelValue: '', counts: () => 18, today, windowEnd: plusDays(today, 13), ...props },
   })
 }
 
@@ -132,7 +132,7 @@ describe('MonthCalendar', () => {
   })
 
   it('locks both month buttons while the window fits into one month', () => {
-    // Сегодня 5 марта, окно закрывается 19 марта — весь он в одном месяце.
+    // Сегодня 5 марта, окно — 14 дат вместе с 5-м, закрывается 18 марта — весь он в одном месяце.
     const wrapper = mountCalendar({ today: '2026-03-05' })
 
     expect(
@@ -141,11 +141,11 @@ describe('MonthCalendar', () => {
   })
 
   it('mutes the days beyond the booking window', async () => {
-    // Сегодня 5 марта, окно закрывается 19 марта.
+    // Сегодня 5 марта, окно — 14 дат вместе с 5-м, закрывается 18 марта.
     const wrapper = mountCalendar({ today: '2026-03-05' })
 
-    const lastDay = dayInMonth(wrapper, 19)
-    const beyondDay = dayInMonth(wrapper, 20)
+    const lastDay = dayInMonth(wrapper, 18)
+    const beyondDay = dayInMonth(wrapper, 19)
 
     expect(lastDay?.classes()).not.toContain('day--muted')
     expect(lastDay?.find('.day-count').text()).toBe('18 св.')

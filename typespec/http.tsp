@@ -66,7 +66,7 @@ namespace CalendarServer {
   // --- Слоты и доступность ---
 
   /**
-   * Слоты дня со статусами (`listDaySlots`). За окном регистрации (сегодня + 14 дней)
+   * Слоты дня со статусами (`listDaySlots`). За окном регистрации (14 дат, включая сегодня)
    * и в прошлом все Слоты `taken`.
    */
   @route("/slots")
@@ -79,8 +79,8 @@ namespace CalendarServer {
   op countFreeSlots(@query date: string): FreeSlotsCount | ApiError;
 
   /**
-   * Последний день окна регистрации, `YYYY-MM-DD`: сегодня + 14 дней.
-   * Соответствует `bookingWindowEnd`.
+   * Последний день окна регистрации, `YYYY-MM-DD`: 14-я дата вместе с сегодняшней
+   * (сегодня + 13 дней). Соответствует `bookingWindowEnd`.
    */
   @route("/booking-window-end")
   @get

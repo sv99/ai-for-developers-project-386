@@ -6,8 +6,8 @@ import type { components, paths } from './schema'
 export const createSdk = (baseUrl: string) => {
   const client = createClient<paths>({ baseUrl })
   return {
-  /** Последний день окна регистрации, `YYYY-MM-DD`: сегодня + 14 дней.
-Соответствует `bookingWindowEnd`. */
+  /** Последний день окна регистрации, `YYYY-MM-DD`: 14-я дата вместе с сегодняшней
+(сегодня + 13 дней). Соответствует `bookingWindowEnd`. */
   bookingWindowEnd: () => client.GET('/booking-window-end'),
   /** Все Записи, включая отменённые и прошедшие. Соответствует `listBookings`. */
   listBookings: () => client.GET('/bookings'),
@@ -33,7 +33,7 @@ export const createSdk = (baseUrl: string) => {
   getCalendarName: () => client.GET('/settings/calendar-name'),
   /** Сохраняет имя календаря; при пустом имени ошибка. Соответствует `setCalendarName`. */
   setCalendarName: (body: components['schemas']['CalendarName']) => client.PUT('/settings/calendar-name', { body }),
-  /** Слоты дня со статусами (`listDaySlots`). За окном регистрации (сегодня + 14 дней)
+  /** Слоты дня со статусами (`listDaySlots`). За окном регистрации (14 дат, включая сегодня)
 и в прошлом все Слоты `taken`. */
   listDaySlots: (date: string) => client.GET('/slots', { params: { query: { date } } }),
   /** Число свободных Слотов дня, 0 … 18. Соответствует `countFreeSlots`. */
