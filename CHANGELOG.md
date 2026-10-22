@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/sv99/ai-for-developers-project-386/compare/v1.9.1...v1.10.0) (2026-10-22)
+
+
+### Features
+
+* генерация клиентского SDK из OpenAPI (тикет [#77](https://github.com/sv99/ai-for-developers-project-386/issues/77)) ([3aadd56](https://github.com/sv99/ai-for-developers-project-386/commit/3aadd563d6861113731777e546edd3937edf72a6))
+
 ## [1.9.1](https://github.com/sv99/ai-for-developers-project-386/compare/v1.9.0...v1.9.1) (2026-10-21)
 
 
